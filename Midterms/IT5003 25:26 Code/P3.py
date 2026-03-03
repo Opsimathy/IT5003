@@ -1,6 +1,4 @@
 class Solution:
-    from typing import List
-
     def threeBagsofCandies(self, a: int, b: int, c: int) -> int:
         return 7 * min((a + b + c) // 2, a + b + c - max(a, b, c))
 
