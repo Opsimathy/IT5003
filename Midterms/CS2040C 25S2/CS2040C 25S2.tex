@@ -1,0 +1,250 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\setcounter{section}{1}
+\section{Application Questions}
+\subsection{Hail Mary’s Problem}
+WA, TLE, and MLE.
+
+The minimal fix for WA would be to replace \t{i < n} by \t{n <= m}.
+
+This has time complexity $O(n\log n)$ due to sorting and space complexity $O(n)$ as we created another vector \t{sorted\_words}. We can avoid both of them by comparing adjacent pairs only and maintaining a rank array, giving the optimal time complexity $O(n)$ and space complexity $O(1)$.
+
+A C++ code is given below, with both the minimal fix version and the optimal version.
+\begin{minted}{cpp}
+#include <iostream>
+using namespace std;
+
+class Solution {
+public:
+    bool is_sorted_minimal_fix(vector<string>& words, string order) {
+        vector<string> sorted_words = words;
+        sort(sorted_words.begin(), sorted_words.end(), [&order](string a, string b) {
+            int i = 0, n = (int)a.size(), j = 0, m = (int)b.size();
+            while (i < n and j < m) {
+                int o1 = order.find(a[i++]), o2 = order.find(b[j++]);
+                if (o1 < o2)
+                    return true;
+                else if (o1 > o2)
+                    return false;
+            }
+            return n <= m;
+        });
+        return sorted_words == words;
+    }
+
+    bool is_sorted_optimal(vector<string>& words, string order) {
+        int r[26];
+        for (int i = 0; i < 26; i++)
+            r[order[i] - 'a'] = i;
+        auto leq = [&](const string& a, const string& b) {
+            int i = 0, n = (int)a.size(), m = (int)b.size();
+            while (i < n && i < m) {
+                int ra = r[a[i] - 'a'], rb = r[b[i] - 'a'];
+                if (ra < rb)
+                    return true;
+                else if (ra > rb)
+                    return false;
+                i++;
+            }
+            return n <= m;
+        };
+        for (int i = 0; i + 1 < (int)words.size(); ++i)
+            if (!leq(words[i], words[i + 1]))
+                return false;
+        return true;
+    }
+};
+
+int main() {
+    Solution sol;
+    vector<string> v1 = {"you", "where", "question"};
+    vector<string> v2 = {"i", "dont", "understand"};
+    vector<string> v3 = {"you", "come", "from", "where", "question"};
+    vector<string> v4 = {"oh", "sol", "star"};
+    vector<string> v5 = {"solaris", "sol"};
+    vector<string> v6 = {"s", "s"};
+    string s1 = "ybcfwdqazxletrpkmnhgijousv", s2 = "abcdefghijklmnopqrstuvwxyz";
+    cout << sol.is_sorted_minimal_fix(v1, s1) << endl;
+    cout << sol.is_sorted_minimal_fix(v2, s2) << endl;
+    cout << sol.is_sorted_minimal_fix(v3, s1) << endl;
+    cout << sol.is_sorted_minimal_fix(v4, s2) << endl;
+    cout << sol.is_sorted_minimal_fix(v5, s2) << endl;
+    cout << sol.is_sorted_minimal_fix(v6, s1) << endl;
+    cout << endl;
+    cout << sol.is_sorted_optimal(v1, s1) << endl;
+    cout << sol.is_sorted_optimal(v2, s2) << endl;
+    cout << sol.is_sorted_optimal(v3, s1) << endl;
+    cout << sol.is_sorted_optimal(v4, s2) << endl;
+    cout << sol.is_sorted_optimal(v5, s2) << endl;
+    cout << sol.is_sorted_optimal(v6, s1) << endl;
+    return 0;
+}
+/*1 0 1 1 0 1*/
+\end{minted}
+\subsection{It Takes Two}
+WA and TLE.
+
+The minimal fixes for WA would be to replace \t{1001} by \t{INT\_MAX} and to replace \t{j = i} by \t{j = 0}.
+
+This has time complexity $O(nm)$ and space complexity $O(1)$. While the space complexity is optimal, we can improve the time complexity to $O(n+m)$. As the time scale is bounded to one day, we can mark their availability on a timeline of length $1440$ and scan for the first occurrence where both bosses are free.
+
+A C++ code is given below, with both the minimal fix version and the optimal version.
+\begin{minted}{cpp}
+#include <iostream>
+using namespace std;
+
+class Solution {
+public:
+    pair<int, int> earliestMeeting_minimal_fix(vector<pair<int, int>>& free1,
+                                               vector<pair<int, int>>& free2,
+                                               int duration) {
+        int bestStart = INT_MAX;
+        for (int i = 0; i < (int)free1.size(); i++)
+            for (int j = 0; j < (int)free2.size(); j++) {
+                int start = max(free1[i].first, free2[j].first);
+                int end = min(free1[i].second, free2[j].second);
+                if (end - start >= duration)
+                    bestStart = min(bestStart, start);
+            }
+        if (bestStart == INT_MAX)
+            return {-1, -1};
+        return {bestStart, bestStart + duration};
+    }
+
+    pair<int, int> earliestMeeting_optimal(vector<pair<int, int>>& free1,
+                                           vector<pair<int, int>>& free2,
+                                           int duration) {
+        std::vector<int> a(1440, 0);
+        for (auto [s,e] : free1)
+            for (int t = s; t < e; t++)
+                a[t]++;
+        for (auto [s,e] : free2)
+            for (int t = s; t < e; t++)
+                a[t]++;
+        for (int t = 0, r = 0; t < 1440; t++) {
+            r = a[t] == 2 ? r + 1 : 0;
+            if (r == duration)
+                return {t - duration + 1, t + 1};
+        }
+        return {-1, -1};
+    }
+};
+
+int main() {
+    Solution sol;
+    vector<pair<int, int>> f1 = {{610, 650}, {740, 810}, {660, 720}},
+                           f2 = {{660, 670}, {600, 615}};
+    int d1 = 8, d2 = 11;
+    auto s1 = sol.earliestMeeting_minimal_fix(f1, f2, d1);
+    auto s2 = sol.earliestMeeting_minimal_fix(f1, f2, d2);
+    auto s3 = sol.earliestMeeting_optimal(f1, f2, d1);
+    auto s4 = sol.earliestMeeting_optimal(f1, f2, d2);
+    cout << s1.first << ' ' << s1.second << endl;
+    cout << s2.first << ' ' << s2.second << endl;
+    cout << s3.first << ' ' << s3.second << endl;
+    cout << s4.first << ' ' << s4.second << endl;
+    return 0;
+}
+/*660 668
+-1 -1*/
+\end{minted}
+\subsection{Split the SLL}
+WA and RTE.
+
+The time and space complexity are $O(n)$ and $O(1)$ respectively, which are optimal. However, it (i) ignores the $n\bmod k$ remainder (WA), (ii) is off-by-one when advancing \t{cur} (WA), and thus (iii) can dereference \t{NULL} (RTE).
+
+A C++ code is given below with the fixed version.
+\begin{minted}{cpp}
+#include <iostream>
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode(int x) : val(x), next(NULL) {}
+};
+
+class Solution {
+public:
+    vector<ListNode*> split_SLL(ListNode* head, int k) {
+        int n = 0;
+        ListNode* cur = head;
+        while (cur != NULL) {
+            ++n;
+            cur = cur->next;
+        }
+        int size_per_part = n / k;
+        vector<ListNode*> ans(k, NULL);
+        cur = head;
+        for (int i = 0; i < k; ++i) {
+            ans[i] = cur;
+            int cur_part_sz = size_per_part + (i < n % k);
+            while (cur_part_sz-- > 1 && cur != NULL)
+                cur = cur->next;
+            if (cur != NULL) {
+                ListNode* temp = cur->next;
+                cur->next = NULL;
+                cur = temp;
+            }
+        }
+        return ans;
+    }
+};
+
+ListNode* build(const vector<int>& a) {
+    ListNode dum(0);
+    ListNode* cur = &dum;
+    for (int x : a) {
+        cur->next = new ListNode(x);
+        cur = cur->next;
+    }
+    return dum.next;
+}
+
+void printParts(const vector<ListNode*>& parts) {
+    for (auto head : parts) {
+        cout << "[";
+        while (head) {
+            cout << head->val;
+            head = head->next;
+            if (head) cout << ",";
+        }
+        cout << "] ";
+    }
+    cout << "\n";
+}
+
+int main() {
+    Solution sol;
+    printParts(sol.split_SLL(
+        build({-61,45,-89,16,12,-69,-61,23,-83,-34,-50,91}), 3));
+    printParts(sol.split_SLL(
+        build({-61,45,-89,16,12,-69,-61,23,-83,-34,-50,91}), 4));
+    printParts(sol.split_SLL(
+        build({-61,45,-89,16,12,-69,-61,23,-83,-34,-50,91}), 5));
+    printParts(sol.split_SLL(
+        build({1,2,3,4,5,6,7}), 3));
+    printParts(sol.split_SLL(
+        build({9,8,7,6}), 4));
+    printParts(sol.split_SLL(
+        build({-5}), 1));
+    printParts(sol.split_SLL(
+        build({}), 1));
+    return 0;
+}
+/*
+[-61,45,-89,16] [12,-69,-61,23] [-83,-34,-50,91] 
+[-61,45,-89] [16,12,-69] [-61,23,-83] [-34,-50,91] 
+[-61,45,-89] [16,12,-69] [-61,23] [-83,-34] [-50,91] 
+[1,2,3] [4,5] [6,7] 
+[9] [8] [7] [6] 
+[-5] 
+[]
+*/
+\end{minted}
+\end{document}

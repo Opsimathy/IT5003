@@ -1,0 +1,180 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{Application Questions}
+\subsection{Special Largest Gap}
+As the numbers have at most $7$ digits, the digit sum is at most $7\times9=63$. Thus we can the keep the minimum/maximum seen so far for each possible digit sum in (fixed) lists and just scan the input once, giving $O(n)$ time complexity and $O(1)$ (extra) space complexity.
+
+The idea is as follows:
+\begin{itemize}
+\item Maintain two lists of length $64$, $m$ and $M$, for the minimum and the maximum seen so far respectively.
+\item For each number in the given array, compute its digit sum and update the corresponding element in $m$ and $M$.
+\item Output the difference between the two numbers corresponding to the largest gap between $m$ and $M$, or $-1$ if not found.
+\end{itemize}
+
+A Python code is given below.
+\begin{minted}{python}
+class Solution:
+    def specialLargestGap(self, arr: List[int]) -> int:
+        def sod(n: int) -> int:
+            s = 0
+            while n:
+                s += n % 10
+                n //= 10
+            return s
+        m = [float('inf')] * 64
+        M = [-1] * 64
+        c = [0] * 64
+        for i in arr:
+            s = sod(i)
+            m[s] = min(m[s], i)
+            M[s] = max(M[s], i)
+            c[s] += 1
+        a = -1
+        for s in range(64):
+            if c[s] >= 2:
+                a = max(a, M[s] - m[s])
+        return a
+
+
+tests = [[[63, 123, 27, 77, 7, 239, 45]],
+         [[7, 16, 25, 34, 43, 52, 61, 70]],
+         [[10, 2, 77, 14]]]
+for t in tests:
+    print(f"{t} -> {Solution().specialLargestGap(*t)}")
+'''
+[[63, 123, 27, 77, 7, 239, 45]] -> 162
+[[7, 16, 25, 34, 43, 52, 61, 70]] -> 63
+[[10, 2, 77, 14]] -> -1
+'''
+\end{minted}
+\subsection{Linked List Splicing}
+\textit{Note that the original problem is written in Java but I will do this in Python.}
+
+The idea is as follows:
+\begin{itemize}
+\item Traverse \t{SLL1} to find the unique sublist \t{2 → 0 → 4 → 0}.
+\item Denote \t{pre} as the node before $2$ and \t{aft} as the node after $0$.
+\item Connect them to \t{SLL2} as \t{pre.next = head2} and \t{tail2.next = aft}.
+\item Return \t{head1}.
+\end{itemize}
+
+A Python code is given below.
+\begin{minted}{python}
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+
+class Solution:
+    def splice(self, head1: Optional[ListNode],
+               tail1: Optional[ListNode],
+               head2: Optional[ListNode],
+               tail2: Optional[ListNode]) -> Optional[ListNode]:
+        dum = ListNode(0, head1)
+        pre = dum
+        cur = head1
+        while cur:
+            if (cur.val == 2 and cur.next.val == 0 and cur.next.next.val == 4
+                and cur.next.next.next.val == 0):
+                pre.next = head2
+                tail2.next = cur.next.next.next.next
+                break
+            pre = cur
+            cur = cur.next
+        return dum.next
+
+
+def build(values):
+    head = None
+    for v in reversed(values):
+        head = ListNode(v, head)
+    return head
+
+
+def to_tail(head):
+    if not head:
+        return None
+    while head.next:
+        head = head.next
+    return head
+
+
+def to_list(head):
+    out = []
+    while head:
+        out.append(head.val)
+        head = head.next
+    return out
+
+
+tests = [[[1, 1, 0, 1, 7, 2, 0, 4, 0, 7, 3, 2, 3, 0], [71, 72, 73, 74, 75]],
+         [[2, 0, 4, 0, 9, 9], [8, 8, 8, 8]],
+         [[5, 6, 2, 0, 4, 0], [1, 2, 3, 4]],
+         [[9, 1, 2, 0, 4, 0, 3, 3, 3], [10, 20, 30, 40]]]
+
+for SLL1, SLL2 in tests:
+    head1 = build(SLL1)
+    tail1 = to_tail(head1)
+    head2 = build(SLL2)
+    tail2 = to_tail(head2)
+    _ = to_list(Solution().splice(head1, tail1, head2, tail2))
+    print(f"{SLL1}, {SLL2} -> {_}")
+'''
+[1, 1, 0, 1, 7, 2, 0, 4, 0, 7, 3, 2, 3, 0], [71, 72, 73, 74, 75] ->
+[1, 1, 0, 1, 7, 71, 72, 73, 74, 75, 7, 3, 2, 3, 0]
+[2, 0, 4, 0, 9, 9], [8, 8, 8, 8] -> [8, 8, 8, 8, 9, 9]
+[5, 6, 2, 0, 4, 0], [1, 2, 3, 4] -> [5, 6, 1, 2, 3, 4]
+[9, 1, 2, 0, 4, 0, 3, 3, 3], [10, 20, 30, 40] -> [9, 1, 10, 20, 30, 40, 3, 3, 3]
+'''
+'''
+\end{minted}
+\subsection{Special Operations}
+Notice that all elements are in $\left[7,7^7\right]$. In every operation we replace $x$ with $\max(\lfloor x/7\rfloor, 7)$, so $x$ becomes $7$ after at most $6$ operations. Thus all elements become $7$ after at most $6n$ operations and any remaining operations can only add exactly $7$ each.
+
+The idea is to use a greedy algorithm. Indeed we can always pick the current maximum element. Otherwise if we pick any non-maximum element $y<x$, swapping to pick $x$ now and $y$ later can only increase the \t{total} as the values cannot go up.
+
+Thus we can:
+\begin{itemize}
+\item Maintain a max-heap of the $n$ numbers.
+\item Pop $x$, add to \t{total} and push $\max(\lfloor x/7\rfloor, 7)$ back. Repeat for $m$ times.
+\item If $m>6n$, add another $7(m-6n)$ to \t{total}.
+\item Return \t{total}.
+\end{itemize}
+
+Building the heap takes $O(n)$ and each operation takes $O(\log n)$. Thus the time complexity would be $O(n+\min(m,6n)\log n)=O(n\log n)$.
+
+A Python code is given below.
+\begin{minted}{python}
+class Solution:
+    def specialOperations(self, arr: List[int], m: int) -> int:
+        from heapq import heapify, heappush, heappop
+        n = len(arr)
+        arr = list(map(lambda x: -x, arr))
+        heapify(arr)
+        total = 0
+        for _ in range(min(m, 6 * n)):
+            x = -heappop(arr)
+            total += x
+            heappush(arr, -max(x // 7, 7))
+        return total + 7 * (m - 6 * n) if m > 6 * n else total
+
+
+tests = [[[49, 49, 49], 4],
+         [[441, 7, 8, 34], 4],
+         [[441, 7, 8, 34], 77]]
+for t in tests:
+    print(f"{t} -> {Solution().specialOperations(*t)}")
+'''
+[[49, 49, 49], 4] -> 154
+[[441, 7, 8, 34], 4] -> 547
+[[441, 7, 8, 34], 77] -> 1059
+'''
+\end{minted}
+\end{document}

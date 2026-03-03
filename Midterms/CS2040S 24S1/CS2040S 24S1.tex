@@ -1,0 +1,63 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{Short Questions}
+\textit{Note that the original problem is written in Java but I include the answers for the sake of completeness.}
+\subsection{Java Code Comprehension and Analysis}
+\begin{enumerate}
+\item \t{3}
+\item \t{0}
+\item The number of contiguous subarrays of length $m$ that contain at least $2$ even numbers.
+\item There are $n-m+1$ windows each of which scans $m$ elements. Thus the tightest time complexity is $O(mn)$.
+\item Use a sliding window, which is $O(n)$. Code omitted.
+\end{enumerate}
+\subsection{Big-O Time Complexity Analysis}
+\begin{enumerate}
+\item Can be false. Big-O does not give exact operation counts.
+\item Can be false. For instance $O(N\log N)$ is already optimal for (comparison-based) sorting and cannot be improved to $O(N)$.
+\item Always true. For sufficiently large $N$ we have $N\log N<N^2$, so $O(N\log N)\subset O(N^2)$.
+\item Can be false. It depends on the operations used.
+\item Always true. The algorithm is $O(N\log N)$ so it takes at most $cN\log N$ operations for some constant $c$, but for any $c$ and sufficiently large $N$ we have $cN\log N<N^2$.
+\end{enumerate}
+\subsection{Another Merge Sort Variant}
+\begin{enumerate}
+\item Slower. We are changing an $O(n)$ merge to an $O(n\log n)$ sort, so it must be (asymptotically) slower.
+\item $O\left(n\log^2 n\right)$. We can show this via \href{https://en.wikipedia.org/wiki/Master_theorem_(analysis_of_algorithms)#Generic_form}{master's theorem (case 2)}. Indeed we have $T(n)=2T(n/2)+O(n\log n)$ so $T(n)\in O\left(n\log^2 n\right)$.
+\end{enumerate}
+\subsection{Analyze These Statements}
+\begin{enumerate}
+\item Incorrect. We have $\sum_{i=1}^n\lfloor n/i\rfloor\in O(n\log n)$.
+\item Incorrect. It has worst time complexity $O\left(n^2\right)$ which is beaten by e.g., merge sort with $O(n\log n)$.
+\item Correct. $O(n\log n)$ assumes that comparisons are $O(1)$, but comparisons between strings of length $m$ can be $O(m)$ in the worst case. Thus sorting can be $O(mn\log n)$ which is more than $O(n^2)$ if e.g., $m=n^2$.
+\item Correct. We can achieve $O(n\log n)$ via a modified version of merge sort.
+\item Incorrect. While both are (possibly amortised) $O(1)$, \t{ArrayList} can be faster due to better cache locality.
+\item Incorrect. As the maximum number of elements is already known beforehand, we can avoid resizing and use a circular array, which is $O(1)$. Again \t{ArrayList} can be faster due to better cache locality.
+\item Incorrect. For instance, if all the integers are equal.
+\item Incorrect. Since elements are from only 26 possible letters, we can use a hash array and solve it in $O(n+m)$ with something like
+\begin{minted}{java}
+boolean[] s = new boolean[26];
+for (Character a : La)
+    s[a - 'A'] = true;
+for (Character b : Lb)
+    if (s[b - 'A']) return true;
+return false;
+\end{minted}
+\item Incorrect. It is always in a leaf but not necessarily at the rightmost.
+\item Correct. We can just sort the queue once after all the enqueue operations are performed, which is also $O(n\log n)$.
+\end{enumerate}
+\subsection{An Algorithm that uses Priority Queue}
+\textit{Note that this is just problem C from CS2040S 2023/24 S1 midterm.}
+\begin{enumerate}
+\item \t{1+3=4
+4+5=9
+6+9=15
+10+15=25}
+\item \t{12+16=28}
+\item $\sum_{i=2}^nO(i\log i)=O\left(n^2\log n\right)$.
+\item Use a min-heap which is $O(n\log n)$. Code omitted. (This is actually used in \href{https://en.wikipedia.org/wiki/Huffman_coding}{Huffman coding} which is covered in CS3230.)
+\end{enumerate}
+\end{document}
