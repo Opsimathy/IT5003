@@ -45,9 +45,9 @@ for t in tests:
 0000011110100000110101101010 -> 77'''
 \end{minted}
 \subsection{Simple Linked List Task}
-RTE and TLE.
+WA, RTE and TLE.
 
-First of all, in the given code \t{prev} is initialised to \t{NULL}, but the code might call \t{prev.next} when the first element is a duplicate (\t{count}$\ >1$). This causes an error, so RTE. Also, it is $O\left(n^2\right)$, as within the loop \t{checker} traverses the entire SLL, which is too slow, so TLE.
+First of all, in the given code \t{prev} is initialised to \t{NULL}, but the code might call \t{prev.next} when the first element is a duplicate (\t{count}$\ >1$). This causes an error, so RTE. Secondly, the last two occurrences of each duplicate element would not get removed, as by that time \t{checker} already skips previous occurrences, so WA. Also, it is $O\left(n^2\right)$, as within the loop \t{checker} traverses the entire SLL, which is too slow, so TLE.
 
 A better idea would be to traverse the SLL twice; the first time we record the number of occurrences of each integer (there are only $100$ possible values), and the second time we remove all the duplicates.
 
