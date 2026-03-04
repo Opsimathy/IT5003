@@ -1,0 +1,142 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\setcounter{section}{1}
+\textit{This solution was written after the test without access to the answer sheet. Since it is based on my memory, some answers may be inaccurate. Please feel free to point out any mistakes or discrepancies.}
+\section{Application Questions}
+\subsection{Sort Bit String}
+TLE.
+
+The code given is based on bubble sort, and the logic is correct. However, it has worst case time complexity $O(n^2)$, which is too slow.
+
+Essentially, this problem is counting the number of inversions. A better idea would be to use a modified version of merge sort (omitted here), which is $O(n\log n)$ and works for any type of lists. However, in this problem all elements are either $0$ or $1$, and we could take advantage of this and come up with an $O(n)$ solution.
+
+The idea is as follows:
+\begin{itemize}
+\item Reverse the string and convert it to a list. Also convert the characters to integers (i.e., \t{`0'}$\to0$ and \t{`1'}$\to1$) for convenience.
+\item Initialise \t{ans}$\ = i = j = 0$ where \t{ans} is the count, $i$ is the index and $j$ is the number of $1$s seen so far.
+\item Traverse the list. For every $1$ encountered, increment \t{ans} by $i-j$, the number of `steps' it is required to `travel' to its required position.
+\item Return \t{ans} at the end.
+\end{itemize}
+
+A Python code is given below.
+\begin{minted}{python}
+class Solution:
+    def sortBitString(self, s: str) -> int:
+        l = map(int, list(s[::-1]))
+        ans = i = j = 0
+        for c in l:
+            if c:
+                ans += i - j
+                j += 1
+            i += 1
+        return ans
+
+
+tests = ["10", "1010", "0000011110100000110101101010"]
+for t in tests:
+    print(f"{t} -> {Solution().sortBitString(t)}")
+'''10 -> 1
+1010 -> 3
+0000011110100000110101101010 -> 77'''
+\end{minted}
+\subsection{Simple Linked List Task}
+RTE and TLE.
+
+First of all, in the given code \t{prev} is initialised to \t{NULL}, but the code might call \t{prev.next} when the first element is a duplicate (\t{count}$\ >1$). This causes an error, so RTE. Also, it is $O\left(n^2\right)$, as within the loop \t{checker} traverses the entire SLL, which is too slow, so TLE.
+
+A better idea would be to traverse the SLL twice; the first time we record the number of occurrences of each integer (there are only $100$ possible values), and the second time we remove all the duplicates.
+
+A Python code is given below.
+\begin{minted}{python}
+# Definition for singly-linked list.
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+
+class Solution:
+    def removeNodes(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        count = [0] * 100
+        cur = head
+        while cur:
+            count[cur.val] += 1
+            cur = cur.next
+        dum = ListNode(0)
+        dum.next = head
+        pre = dum
+        cur = head
+        while cur:
+            if count[cur.val] > 1:
+                pre.next = cur.next
+            else:
+                pre = cur
+            cur = cur.next
+        return dum.next
+
+
+def build(values):
+    head = None
+    for v in reversed(values):
+        head = ListNode(v, head)
+    return head
+
+
+def to_list(head):
+    out = []
+    while head:
+        out.append(head.val)
+        head = head.next
+    return out
+
+
+tests = [[2, 3, 6, 7, 2, 3, 4, 1, 10, 2, 9, 6]]
+for t in tests:
+    print(f"{t} -> {to_list(Solution().removeNodes(build(t)))}")
+"""[2, 3, 6, 7, 2, 3, 4, 1, 10, 2, 9, 6] -> [7, 4, 1, 10, 9]"""
+\end{minted}
+\subsection{Minimum Number of Moves}
+WA and TLE.
+
+The given code uses parameter \t{reversed = True} in \t{sort}, which is wrong as that gives a descending sort, but we want the smallest elements instead. Also, it sorts the list every time a new element is added, which is highly inefficient.
+
+A better idea would be to maintain a min heap to achieve $O(n\log n)$ time complexity. The idea is as follows:
+\begin{itemize}
+\item Heapify \t{nums}. Initialise \t{moves = 0}.
+\item Repeat the following infinitely:
+\begin{itemize}
+\item Pop the smallest element, $x$.
+\item If $x\ge t$, we know that all elements are now $\ge t$, so return \t{moves}.
+\item Pop the smallest element, $y$.
+\item Push $4x+2y$ back. Increment \t{moves} by $1$.
+\end{itemize}
+\item (Notice that this loop is guaranteed to terminate at some point, as given in the problem description.)
+\end{itemize}
+
+A Python code is given below.
+\begin{minted}{python}
+class Solution:
+    def minimumNumberofMoves(self, nums: List[int], t: int) -> int:
+        from heapq import heapify, heappop, heappush
+        heapify(nums)
+        moves = 0
+        while True:
+            x = heappop(nums)
+            if x >= t:
+                return moves
+            y = heappop(nums)
+            heappush(nums, 4 * x + 2 * y)
+            moves += 1
+
+
+tests = [[[7, 1, 2, 3], 8]]
+for t in tests:
+    print(f"{t} -> {Solution().minimumNumberofMoves(*t)}")
+"""[[7, 1, 2, 3], 8] -> 2"""
+\end{minted}
+\end{document}
