@@ -1,0 +1,313 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{adbdc} \textbf{acbeb}.
+\begin{enumerate}
+\item \begin{enumerate}[label=\alph*).]
+    \item $\checkmark$ By geometric series, $A(n)=2n\in O(n)$.
+    \item $B(n)\in O\left(n^2\right)$.
+    \item By harmonic series, $C(n)\in O(n\log n)$.
+    \item By arithmetic series, $D(n)=n(n+1)/2\in O\left(n^2\right)$.
+    \item $E(n)\in O\left(n^2\right)$.
+\end{enumerate}
+\item By definition d). $\checkmark$
+\item \begin{enumerate}[label=\alph*).]
+    \item Fails 1) as it is worst case $O\left(n^2\right)$ and 2) as it is in-place.
+    \item $\checkmark$ Satisfies all conditions.
+    \item Fails 1) as it is worst case $O\left(n^2\right)$, 2) as it is in-place and 3) as it is not stable.
+    \item Fails 2) as it is in-place and 3) as it is not stable.
+    \item Fails 3) as it is not stable.
+\end{enumerate}
+\item \begin{enumerate}[label=\alph*).]
+    \item This is worst case $O(n)$.
+    \item Each \t{ExtractMax} takes $O(\log n)$ so this is worst case $O(k\log n)$.
+    \item This is worst case $O(n)$.
+    \item $\checkmark$ Recall that in a max heap, every child is less than or equal to its parent. So this is worst case $O(k)$ as we only visit nodes that are $>x$.
+    \item Building the BST takes $O(n\log n)$ so this is worst case $O(n\log n+k)$.
+\end{enumerate}
+\item \begin{enumerate}[label=\alph*).]
+    \item See \href{https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/}{this LeetCode problem}.
+    \item Similar to a).
+    \item $\checkmark$ This is not possible as we cannot tell whether a child is a left child or a right child. For instance we can have $u$ as the root and $v$ either as a left or as a right child, and these yield the same preorder and postorder traversal.
+    \item Recall the BST property: left subtree $<$ root and right subtree $>$ root. Thus we can recursively construct the tree.
+    \item Similar to d).
+\end{enumerate}
+\item By definition a). $\checkmark$
+\item By definition c). $\checkmark$ because AM needs $O\left(|V|^2\right)=O\left(m^2n^2\right)$.
+\item By definition b). $\checkmark$ again because AM needs $O\left(n^2\right)$.
+\item The answer is e). $\checkmark$ By definition all the options are correct.
+\item The answer is b). $\checkmark$ (Out of scope for this semester)
+\end{enumerate}
+\newpage
+\section{Application Questions}
+\subsection{ICPC Problem}
+Obviously, this transformation is invertible: $s$ is special if an empty string can be transformed into $s$ by inserting \t{"icpc"}, or equivalently if $s$ can be transformed into an empty string by removing \t{"icpc"}. This inspires us to use a stack.
+
+The idea is as follows:
+\begin{itemize}
+    \item Given $s$, first check its length $n$. If $n\bmod 4\ne 0$, of course it cannot be special.
+    \item Create a stack $S$ and insert $s$ into $S$ character by character. Whenever the top four characters form \t{"icpc"}, pop them out. (Note that as \t{"icpc"} has no self-overlap, we only to do this once.)
+    \item If an empty string remains at the end, $s$ is special. Otherwise it is not.
+\end{itemize}
+\subsection{Special List}
+As each integer is $\in[1, 100]$, we can use a frequency table based solution.
+
+The idea is as follows:
+\begin{itemize}
+    \item Initialise a frequency array $f$ of length 100.
+    \item For each number $i$ in $L$, increment $f[i]$ by 1.
+    \item Traverse $f$. Note the boundary condition: for each $i$ from $2$ to $99$, if $f[i]=1$ and $f[i-1]=f[i+1]=0$, append $i$ to the output. Finally if $f[1]=1$ and $f[2]=0$, append $1$ to the output and if $f[100]=1$ and $f[99]=0$, append $100$ to the output.
+\end{itemize}
+\subsection{Count Number of Vertices with Special Grandparent}
+The boxes can be filled as follows.
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Blank} & \textbf{Answer} \\
+\hline
+{[01]} & \t{None} \\
+{[02]} & \t{return} \\
+{[03]} & \t{not root.value \% 7} \\
+{[04]} & \t{root.left} \\
+{[05]} & \t{root.left.right} \\
+{[06]} & \t{0} \\
+{[07]} & \t{None} \\
+{[08]} & \t{1} \\
+{[09]} & \t{right} \\
+{[10]} & \t{root} \\
+{[11]} & \t{traverse} \\
+{[12]} & \t{left} \\
+{[13]} & \t{root} \\
+{[14]} & \t{self.ans} \\
+{[15]} & \t{n} \\
+\hline
+\end{tabular}
+\end{table}
+\subsection{Ordering in a Photo}
+Model the situation as an undirected graph, where the names are the vertices and the pairs are the edges. There are exactly two possible orderings if and only if the graph is a path graph containing every friend, so that the two orderings are that path and its reverse.
+
+Thus the answer is valid if and only if all of these conditions hold:
+\begin{itemize}
+    \item $m=n-1$.
+    \item Every vertex has degree at most $2$.
+    \item Exactly two vertices have degree $1$.
+    \item The graph is connected.
+\end{itemize}
+
+If any of these fails, we output \t{["??"]}. Otherwise, we pick the lexicographically smaller degree-$1$ vertex and walk along the path to produce the answer.
+
+The idea is as follows:
+\begin{itemize}
+    \item If $m=n-1$, output \t{["??"]}.
+    \item Build the graph $G$ as an adjacency list from \t{pair}.
+    \item Check the degrees are valid.
+    \item Walk along $G$ from the lexicographically smaller degree-$1$ vertex. If exactly $n$ vertices, output the path; otherwise, output \t{["??"]}.
+\end{itemize}
+\subsection{Shortest Swim Route}
+\textit{This problem is actually \href{https://leetcode.com/problems/shortest-bridge/}{LeetCode 934} with a twist: here the dimensions are $m\times n$ not $n\times n$.}
+
+We find the two islands via DFS/BFS first and then gradually `expand' the boundary of one island via BFS until it `meets' the other island. Both DFS and BFS take $O(mn)$ in the worst case, so time complexity is guaranteed.
+
+The idea is as follows:
+\begin{itemize}
+    \item Find island A and its perimeter.
+    \item Find island B and its perimeter.
+    \item Run a (multi-source) BFS from all perimeter cells of A through ocean cells. The first time this touches a perimeter cell of B, return the distance.
+\end{itemize}
+Note that every valid swim route must start from a perimeter cell of island A and end at a perimeter cell of island B. BFS explores all possible directions of the swim in increasing distance, so correctness is guaranteed. The idea is simple but the implementation is a bit cumbersome.
+\newpage
+\section*{Appendix: Python Code for Application Questions}
+\begin{minted}{python}
+# Definition for a BSTvertex.
+class BSTVertex:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class Solution:
+    def ICPCProblem(self, s: str) -> bool:
+        if len(s) % 4:
+            return False
+        stack = []
+        for i in s:
+            stack.append(i)
+            if len(stack) >= 4 and stack[-4:] == ['i', 'c', 'p', 'c']:
+                stack.pop()
+                stack.pop()
+                stack.pop()
+                stack.pop()
+        return not len(stack)
+
+    def specialList(self, L: List[int]) -> List[int]:
+        f = [0] * 101
+        for i in L:
+            f[i] += 1
+        a = []
+        if f[1] == 1 and f[2] == 0:
+            a.append(1)
+        for i in range(2, 100):
+            if f[i] == 1 and f[i - 1] == f[i + 1] == 0:
+                a.append(i)
+        if f[100] == 1 and f[99] == 0:
+            a.append(100)
+        return a
+
+    def countVertices(self, root: Optional[BSTVertex]) -> int:
+        def traverse(root):
+            if root == None:
+                return
+            if root.value % 7 == 0:
+                if root.left != None:
+                    self.ans += 0 if root.left.right == None else 1
+                    self.ans += 0 if root.left.left == None else 1
+                if root.right != None:
+                    self.ans += 1 if root.right.left != None else 0
+                    self.ans += 1 if root.right.right != None else 0
+            traverse(root.right)
+            traverse(root.left)
+        self.ans = 0
+        traverse(root)
+        return self.ans  # Overall time complexity is O(n)
+
+    def orderinginaPhoto(self, pair: List[List[str]]) -> List[str]:
+        from collections import defaultdict
+        g = defaultdict(list)
+        for i, j in pair:
+            g[i].append(j)
+            g[j].append(i)
+        if len(pair) != len(g) - 1:
+            return ["??"]
+        ends = [i for i in g if len(g[i]) == 1]
+        if len(ends) != 2 or any(len(g[i]) > 2 for i in g):
+            return ["??"]
+        ans = []
+        prev, cur = None, min(ends)
+        while cur is not None:
+            ans.append(cur)
+            nxt = [i for i in g[cur] if i != prev]
+            prev, cur = cur, (nxt[0] if nxt else None)
+        return ans if len(ans) == len(g) else ["??"]
+
+    def shortestSwimRoute(self, grid: List[List[int]]) -> int:
+        from collections import deque
+        m, n = len(grid), len(grid[0])
+        q = deque()
+        dir = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        def dfs(i: int, j: int) -> None:
+            if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] != 1:
+                return
+            grid[i][j] = 2
+            q.append((i, j))
+            for di, dj in dir:
+                dfs(i + di, j + dj)
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 1:
+                    dfs(i, j)
+                    break
+            else:
+                continue
+            break
+        a = 0
+        while q:
+            for _ in range(len(q)):
+                i, j = q.popleft()
+                for di, dj in dir:
+                    ni, nj = i + di, j + dj
+                    if 0 <= ni < m and 0 <= nj < n:
+                        if grid[ni][nj] == 1:
+                            return a
+                        elif not grid[ni][nj]:
+                            grid[ni][nj] = 2
+                            q.append((ni, nj))
+            a += 1
+
+
+tests = ["icicpcpc", "icpicpcc", "icpicpccicpc", "icpccpic", "icicicic", "icpci"]
+for t in tests:
+    print(f"{t} -> {Solution().ICPCProblem(t)}")
+"""icicpcpc -> True
+icpicpcc -> True
+icpicpccicpc -> True
+icpccpic -> False
+icicicic -> False
+icpci -> False"""
+
+tests = [[3, 7, 1, 12, 5, 10, 8], [3, 7, 1, 12, 5, 10, 8, 3, 10],
+         [3, 7, 1, 12, 5, 10, 8, 3, 10, 6]]
+for t in tests:
+    print(f"{t} -> {Solution().specialList(t)}")
+"""[3, 7, 1, 12, 5, 10, 8] -> [1, 3, 5, 10, 12]
+[3, 7, 1, 12, 5, 10, 8, 3, 10] -> [1, 5, 12]
+[3, 7, 1, 12, 5, 10, 8, 3, 10, 6] -> [1, 12]"""
+
+root = BSTVertex(53)
+root.left = BSTVertex(17)
+root.right = BSTVertex(77)
+root.left.left = BSTVertex(12)
+root.left.right = BSTVertex(50)
+root.left.left.left = BSTVertex(3)
+root.left.left.right = BSTVertex(14)
+root.left.left.left.left = BSTVertex(1)
+root.left.right.left = BSTVertex(31)
+root.left.right.left.right = BSTVertex(35)
+root.left.right.left.right.right = BSTVertex(38)
+root.right.left = BSTVertex(74)
+root.right.right = BSTVertex(83)
+root.right.left.right = BSTVertex(75)
+root.right.right.left = BSTVertex(80)
+root.right.right.right = BSTVertex(98)
+root.right.right.right.left = BSTVertex(90)
+root.right.right.right.right = BSTVertex(99)
+root.right.right.right.left.right = BSTVertex(95)
+print(Solution().countVertices(root))
+"""4"""
+
+tests = [[["steven", "grace"], ["arief", "erlyn"], ["arief", "steven"]],
+         [["steven", "grace"]],
+         [["steven", "grace"], ["arief", "grace"], ["arief", "steven"]],
+         [["steven", "grace"], ["arief", "steven"], ["steven", "erlyn"]],
+         [["steven", "grace"], ["arief", "erlyn"]]]
+for t in tests:
+    print(f"{t} -> {Solution().orderinginaPhoto(t)}")
+"""[['steven', 'grace'], ['arief', 'erlyn'], ['arief', 'steven']]
+-> ['erlyn', 'arief', 'steven', 'grace']
+[['steven', 'grace']] -> ['grace', 'steven']
+[['steven', 'grace'], ['arief', 'grace'], ['arief', 'steven']] -> ['??']
+[['steven', 'grace'], ['arief', 'steven'], ['steven', 'erlyn']] -> ['??']
+[['steven', 'grace'], ['arief', 'erlyn']] -> ['??']"""
+
+tests = [[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
+          [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+          [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+          [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+          [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
+         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]]
+for t in tests:
+    print(f"{t} -> {Solution().shortestSwimRoute(t)}")
+"""[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]] -> 5
+[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]] -> 7"""
+\end{minted}
+\end{document}
