@@ -1,11 +1,3 @@
-# Definition for a BSTvertex.
-class BSTVertex:
-    def __init__(self, value=0, left=None, right=None):
-        self.value = value
-        self.left = left
-        self.right = right
-
-
 class Solution:
     def ICPCProblem(self, s: str) -> bool:
         if len(s) % 4:
@@ -33,6 +25,13 @@ class Solution:
         if f[100] == 1 and f[99] == 0:
             a.append(100)
         return a
+
+    # Definition for a BSTvertex.
+    class BSTVertex:
+        def __init__(self, value=0, left=None, right=None):
+            self.value = value
+            self.left = left
+            self.right = right
 
     def countVertices(self, root: Optional[BSTVertex]) -> int:
         def traverse(root):
@@ -80,9 +79,16 @@ class Solution:
             if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] != 1:
                 return
             grid[i][j] = 2
-            q.append((i, j))
+            is_boundary = False
             for di, dj in dir:
-                dfs(i + di, j + dj)
+                ni, nj = i + di, j + dj
+                if 0 <= ni < m and 0 <= nj < n:
+                    if grid[ni][nj] == 0:
+                        is_boundary = True
+                    elif grid[ni][nj] == 1:
+                        dfs(ni, nj)
+            if is_boundary:
+                q.append((i, j))
 
         for i in range(m):
             for j in range(n):
@@ -93,6 +99,7 @@ class Solution:
                 continue
             break
         a = 0
+        print(q)
         while q:
             for _ in range(len(q)):
                 i, j = q.popleft()
@@ -101,7 +108,7 @@ class Solution:
                     if 0 <= ni < m and 0 <= nj < n:
                         if grid[ni][nj] == 1:
                             return a
-                        elif not grid[ni][nj]:
+                        elif grid[ni][nj] == 0:
                             grid[ni][nj] = 2
                             q.append((ni, nj))
             a += 1
