@@ -1,3 +1,10 @@
+# Definition for a BSTvertex.
+class BSTVertex:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
 class Solution:
     def ICPCProblem(self, s: str) -> bool:
         if len(s) % 4:
@@ -13,25 +20,10 @@ class Solution:
         return not len(stack)
 
     def specialList(self, L: List[int]) -> List[int]:
-        f = [0] * 101
+        f = [0] * 102
         for i in L:
             f[i] += 1
-        a = []
-        if f[1] == 1 and f[2] == 0:
-            a.append(1)
-        for i in range(2, 100):
-            if f[i] == 1 and f[i - 1] == f[i + 1] == 0:
-                a.append(i)
-        if f[100] == 1 and f[99] == 0:
-            a.append(100)
-        return a
-
-    # Definition for a BSTvertex.
-    class BSTVertex:
-        def __init__(self, value=0, left=None, right=None):
-            self.value = value
-            self.left = left
-            self.right = right
+        return [i for i in range(1, 101) if f[i] == 1 and f[i - 1] == f[i + 1] == 0]
 
     def countVertices(self, root: Optional[BSTVertex]) -> int:
         def traverse(root):
