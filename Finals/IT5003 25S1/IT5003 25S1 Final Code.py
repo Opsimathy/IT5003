@@ -1,9 +1,13 @@
+from typing import List, Optional
+
+
 # Definition for a BSTvertex.
 class BSTVertex:
     def __init__(self, value=0, left=None, right=None):
         self.value = value
         self.left = left
         self.right = right
+
 
 class Solution:
     def ICPCProblem(self, s: str) -> bool:
@@ -27,15 +31,15 @@ class Solution:
 
     def countVertices(self, root: Optional[BSTVertex]) -> int:
         def traverse(root):
-            if root == None:
+            if root is None:
                 return
             if root.value % 7 == 0:
-                if root.left != None:
-                    self.ans += 0 if root.left.right == None else 1
-                    self.ans += 0 if root.left.left == None else 1
-                if root.right != None:
-                    self.ans += 1 if root.right.left != None else 0
-                    self.ans += 1 if root.right.right != None else 0
+                if root.left is not None:
+                    self.ans += 0 if root.left.right is None else 1
+                    self.ans += 0 if root.left.left is None else 1
+                if root.right is not None:
+                    self.ans += 1 if root.right.left is not None else 0
+                    self.ans += 1 if root.right.right is not None else 0
             traverse(root.right)
             traverse(root.left)
         self.ans = 0
@@ -104,6 +108,7 @@ class Solution:
                             grid[ni][nj] = 2
                             q.append((ni, nj))
             a += 1
+        return -1
 
 
 tests = ["icicpcpc", "icpicpcc", "icpicpccicpc", "icpccpic", "icicicic", "icpci"]

@@ -1,0 +1,263 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{adbdc}.
+\begin{enumerate}
+\item We can see that at each step, we halve the input value, so it takes $O(\log n)$ steps and the correct answer is b) $\checkmark$. (Formally speaking, we have the recurrence $T(n)=T(n/2)+O(1)\implies T(n)\in O(\log n)$.)
+\item We can see by substituting a few small $n$ values that $\mathrm{foo}(n)=n-1$, so the correct answer is a) $\checkmark$. (This can be formally shown via induction.)
+\item The maximum product comes from either the three largest positive numbers or the largest positive number and the two smallest negative numbers. The former yields $8\times7\times7=392$ and the latter yields $8\times(-9)\times(-9)=648$, so the correct answer is e) $\checkmark$.
+\item Both a) and b) are correct but the former is $O\left(n^2\right)$ and the latter is $O(n)$, so the correct answer is b) $\checkmark$.
+\item We are given that \t{arr} is a sorted list, so we can use binary search instead of linear search, improving each check from $O(n)$ to $O(\log n)$. Hence the correct answer is b). $\checkmark$ (Note that d) is still $O(n)$ as building the set alone takes $O(n)$ even if each subsequent check is $O(1)$.) 
+\end{enumerate}
+\section{Application Questions}
+\subsection{Deleting Characters}
+We can use a stack to perform the operations required in $O(n)$ time. Just create a stack and iterate over $S$ character by character. When the character is a digit, pop the top element out, otherwise insert it into the stack. We can check whether a character is a digit via the \t{isdigit} method. Then we return the stack at the end.
+
+Note that the questions states ``it is guaranteed that it is possible to delete all digits in $S$ using just this operation.'' Thus we do not need to check whether the stack is empty or whether the top character is a lower case letter. 
+\subsection{Strength Competition}
+We can use a maximum heap to perform the operations required in $O(n\log n)$ time. The idea is as follows:
+\begin{itemize}
+    \item Create a heap $h$ from the list \t{str}.
+    \item While $h$ has at least two elements, pop out two elements $a$ and $b$, and push $a-b$ back if $a>b$ (or $b-a$ back if $b>a$).
+    \item If $h$ has only one element, return that element. If $h$ is empty, return $0$.
+\end{itemize}
+Note that Python \t{heapq} is minimum heap by default; to switch to maximum heap, use the trick of negating every element.
+\subsection{Counting Triples}
+We can create a set from $L$ and for each element $i$ in $L$, check whether $i-d$ and $i+d$ are both in the set. Each $t$ corresponds to a unique triple. The idea is as follows:
+\begin{itemize}
+    \item Create a set $s$ from the list $L$ and initialise $a=0$.
+    \item For each $i\in L$, increment $a$ by $1$ if $i-d,i+d\in s$.
+    \item Return $a$.
+\end{itemize}
+This can be written in a one-liner Pythonic way: \t{sum(1 for i in L if i - d in s and i + d in s)}. By design this is $O(n)$.
+\subsection{Combining Integers from Two BSTs}
+Recall that inorder traversal yields a sorted list of all the values in a BST. Thus we can perform inorder traversal on both BSTs and merge them like in merge sort. This takes $O(n)$ time and $O(n)$ space.
+
+(Actually, the space complexity can be improved to $O\left(h_1+h_2\right)$ where $h_1, h_2$ are the heights of the two BSTs, by directly merging the two BSTs using two stacks. But we are told that the BSTs can be unbalanced, so this is still $O(n)$ in the worst case. In the best/average case (or if they are balanced) though, this improves the space complexity to $O(\log n)$. This alternative approach is implemented as \t{combiningIntegers\_alt} in the appendix.)
+\subsection{Pairs with the Maximum Friendship Score}
+As we are not told how this friendship information is given, we can model it as an adjacency matrix, since the existence of edges is frequency asked.
+
+The question is essentially asking for a pair of vertices whose sum of degrees (minus $1$ if there is an edge between them) is the largest. This can be conveniently found via adjacency matrix plus a list of degrees of all elements.
+
+Again there is an elegant Pythonic way of doing this: the degree list can be found as \t{d = [sum(f[i]) for i in range(n)]}, and the answer is \t{max(d[i] + d[j] - f[i][j] for i in range(n) for j in range(i + 1, n))}, where \t{f} is the adjacency matrix.
+\subsection{City with the Strongest Reachability}
+This question is essentially an \href{https://en.wikipedia.org/wiki/Shortest_path_problem#All-pairs_shortest_paths}{All-Pairs Shortest Paths} problem. The 14-mark approach is simple: from each city, run Dijkstra's algorithm to find the shortest distance to each city from it. Then we find the city with the maximum number of reachable cities given the capacity of the car, as we are told that we can only charge up battery at home. This takes $O(n\cdot(m+n)\log n)=O\left(n^3\log n\right)$ time.
+
+The 15-mark approach, on the other hand, is actually out of the syllabus and uses the \href{https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm}{Floyd–Warshall algorithm}, which has a lower $O\left(n^3\right)$ time complexity. These two approaches are implemented as \t{city\_14} and \t{city\_15} respectively in the appendix.
+\section*{Appendix: Python Code for Application Questions}
+\begin{minted}{python}
+from typing import List, Optional, Tuple
+
+
+# Definition for a BSTvertex.
+class BSTVertex:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class Solution:
+    def deletingCharacters(self, s: str) -> str:
+        stack = []
+        for i in s:
+            if i.isdigit():
+                stack.pop()
+            else:
+                stack.append(i)
+        return "".join(stack)
+
+    def strengthCompetition(self, s: List[int]) -> int:
+        from heapq import heapify, heappush, heappop
+        s = [-i for i in s]
+        heapify(s)
+        while s:
+            a = heappop(s)
+            if not s:
+                return -a
+            b = heappop(s)
+            if a != b:
+                heappush(s, -abs(a - b))
+        else:
+            return 0
+
+    def countingTriples(self, L: List[int], d: int) -> int:
+        s = set(L)
+        return sum(1 for i in L if i - d in s and i + d in s)
+
+    def combiningIntegers(self, root1: Optional[BSTVertex],
+                          root2: Optional[BSTVertex]) -> List[int]:
+        def inorder(root: Optional[BSTVertex], result: List[int]) -> None:
+            if not root:
+                return
+            inorder(root.left, result)
+            result.append(root.value)
+            inorder(root.right, result)
+
+        a, b = [], []
+        inorder(root1, a)
+        inorder(root2, b)
+        i = j = 0
+        ans = []
+        while i < len(a) and j < len(b):
+            if a[i] <= b[j]:
+                ans.append(a[i])
+                i += 1
+            else:
+                ans.append(b[j])
+                j += 1
+        while i < len(a):
+            ans.append(a[i])
+            i += 1
+        while j < len(b):
+            ans.append(b[j])
+            j += 1
+        return ans
+
+    # Alternative version
+    def combiningIntegers_alt(self, root1: Optional[BSTVertex],
+                              root2: Optional[BSTVertex]) -> List[int]:
+        def push_left(node, stack):
+            while node:
+                stack.append(node)
+                node = node.left
+        s1, s2 = [], []
+        push_left(root1, s1)
+        push_left(root2, s2)
+        ans = []
+        while s1 or s2:
+            if not s2 or (s1 and s1[-1].value <= s2[-1].value):
+                node = s1.pop()
+                push_left(node.right, s1)
+            else:
+                node = s2.pop()
+                push_left(node.right, s2)
+            ans.append(node.value)
+        return ans
+
+    def pairs(self, f: List[List[int]]) -> int:
+        n = len(f)
+        d = [sum(f[i]) for i in range(n)]
+        return max(d[i] + d[j] - f[i][j] for i in range(n) for j in range(i + 1, n))
+
+    # 14 mark version (Dijkstra, O(n^3 log n))
+    def city_14(self, E: List[Tuple[int, int, int]], n: int, k: int) -> int:
+        from collections import defaultdict
+        from heapq import heappush, heappop
+        g = defaultdict(list)
+        for u, v, w in E:
+            g[u].append((v, w))
+            g[v].append((u, w))
+
+        def dijkstra(i):
+            dist = [float('inf')] * n
+            dist[i] = 0
+            q = [(0, i)]
+            while q:
+                d, u = heappop(q)
+                if d > dist[u] or d > k:
+                    continue
+                for v, w in g[u]:
+                    nd = d + w
+                    if nd < dist[v] and nd <= k:
+                        dist[v] = nd
+                        heappush(q, (nd, v))
+            return dist
+
+        ans, best = -1, -1
+        for i in range(n):
+            d = dijkstra(i)
+            c = sum(i != j and d[j] <= k for j in range(n))
+            if c >= best:
+                ans, best = i, c
+        return ans
+
+    # 15 mark version (Floyd-Warshall, O(n^3))
+    def city_15(self, E: List[Tuple[int, int, int]], n: int, k: int) -> int:
+        from math import inf
+        d = [[inf] * n for _ in range(n)]
+        for i in range(n):
+            d[i][i] = 0
+        for u, v, w in E:
+            d[u][v] = d[v][u] = min(d[u][v], w)
+        for x in range(n):
+            for i in range(n):
+                for j in range(n):
+                    d[i][j] = min(d[i][j], d[i][x] + d[x][j])
+        ans, best = -1, -1
+        for i in range(n):
+            c = sum(i != j and d[i][j] <= k for j in range(n))
+            if c >= best:
+                ans, best = i, c
+        return ans
+
+
+tests = ["xyz", "steven7halim", "abc12c", "th3qu1ckbr0wnf0xjumps0v3rth3l4zyd0g"]
+for t in tests:
+    print(f"{t} -> {Solution().deletingCharacters(t)}")
+"""xyz -> xyz
+steven7halim -> stevehalim
+abc12c -> ac
+th3qu1ckbr0wnf0xjumps0v3rth3l4zyd0g -> tqckbwnxjumprtzyg"""
+
+tests = [[7, 7], [1, 5, 2], [2, 7, 4, 1, 15, 1], [99, 70, 96, 60]]
+for t in tests:
+    print(f"{t} -> {Solution().strengthCompetition(t)}")
+"""[7, 7] -> 0
+[1, 5, 2] -> 2
+[2, 7, 4, 1, 15, 1] -> 0
+[99, 70, 96, 60] -> 7"""
+
+tests = [[[1, 2, 4, 5, 7, 10], 3], [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3],
+         [[1, 2, 3, 4, 5, 77, 79, 81], 2]]
+for t in tests:
+    print(f"{t} -> {Solution().countingTriples(*t)}")
+"""[[1, 2, 4, 5, 7, 10], 3] -> 2
+[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3] -> 4
+[[1, 2, 3, 4, 5, 77, 79, 81], 2] -> 2"""
+
+root1 = BSTVertex(53)
+root1.left = BSTVertex(3)
+root1.left.right = BSTVertex(52)
+root1.left.right.left = BSTVertex(27)
+root2 = BSTVertex(81)
+root2.left = BSTVertex(27)
+root2.left.right = BSTVertex(39)
+root2.right = BSTVertex(89)
+print(Solution().combiningIntegers(root1, root2))
+print(Solution().combiningIntegers_alt(root1, root2))
+"""[3, 27, 27, 39, 52, 53, 81, 89]"""
+
+tests = [[[0, 1, 0, 1, 0, 0, 0],
+          [1, 0, 1, 1, 0, 0, 0],
+          [0, 1, 0, 1, 1, 1, 0],
+          [1, 1, 1, 0, 0, 0, 1],
+          [0, 0, 1, 0, 0, 0, 0],
+          [0, 0, 1, 0, 0, 0, 0],
+          [0, 0, 0, 1, 0, 0, 0]]]
+for t in tests:
+    print(f"{t} -> {Solution().pairs(t)}")
+"""[[0, 1, 0, 1, 0, 0, 0], [1, 0, 1, 1, 0, 0, 0], [0, 1, 0, 1, 1, 1, 0],
+    [1, 1, 1, 0, 0, 0, 1], [0, 0, 1, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0]] -> 7"""
+
+tests = [[[(0, 4, 8), (0, 1, 2), (1, 4, 2), (1, 2, 3),
+           (4, 2, 7), (4, 3, 1), (2, 3, 1)], 5, 2],
+         [[(0, 1, 2), (2, 3, 2)], 4, 2],
+         [[(0, 1, 1), (0, 2, 1), (1, 2, 1)], 3, 1],
+         [[(0, 1, 1), (1, 2, 1), (2, 3, 1)], 4, 2]]
+for t in tests:
+    print(f"{t} -> {Solution().city_14(*t)}")
+    print(f"{t} -> {Solution().city_15(*t)}")
+"""[[(0, 4, 8), (0, 1, 2), (1, 4, 2), (1, 2, 3),
+     (4, 2, 7), (4, 3, 1), (2, 3, 1)], 5, 2] -> 4
+[[(0, 1, 2), (2, 3, 2)], 4, 2] -> 3
+[[(0, 1, 1), (0, 2, 1), (1, 2, 1)], 3, 1] -> 2
+[[(0, 1, 1), (1, 2, 1), (2, 3, 1)], 4, 2] -> 2"""
+\end{minted}
+\end{document}
