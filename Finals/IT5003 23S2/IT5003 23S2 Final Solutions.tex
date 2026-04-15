@@ -1,0 +1,134 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{bcd}...\textbf{aeb}.
+\begin{enumerate}
+\item List slicing is $O(n)$ in Python and hence the time complexity is $n+n/2+n/4+\cdots\in O(n)$. So the correct answer is b). $\checkmark$ (The correct implementation with $O(\log n)$ works with indices instead.)
+\item The loop runs in $O(\log n)$ time, each iteration taking $O(n)$. So the correct answer is c). $\checkmark$
+\item Creating $b$ takes $O\left(n^2\right)$ time which is the dominating term. So the correct answer is d). $\checkmark$
+
+$\cdots$
+\setcounter{enumi}{22}
+\item It doesn't affect anything - the correct answer is a). $\checkmark$
+\item By definition the correct answer is e). $\checkmark$
+\item By definition the correct answer is b). $\checkmark$ (Surely it doesn't make sense...)
+\end{enumerate}
+All other questions are redacted.
+\section{Simpler Questions}
+\subsection{Feedback on IT5001}
+(Omitted)
+\subsection{Real-Life Application of DSA}
+(Omitted)
+\subsection{Triple-Ended Queue}
+Maintain two deques, say $L$ and $R$, so that we always have $|L|=|R|$ when $|L|+|R|$ is even and $|L|=|R|+1$ when $|L|+|R|$ is odd, where $|L|$ and $|R|$ denote the size of $L$ and $R$ respectively.
+
+Then we have, for a teque $T$,
+\begin{itemize}
+\item \t{T.append(x)} $\equiv$ \t{R.append(x)},
+\item \t{T.appendleft(x)} $\equiv$ \t{L.appendleft(x)},
+\item \t{T.insertmiddle(x)} $\equiv$ \t{R.appendleft(x)},
+\item \t{T.printteque()} $\equiv$ \t{L.printdeque()} $+$ \t{R.printdeque()}.
+\end{itemize}
+
+After each step, we `rebalance' $T$ as needed to maintain the invariant: move the last element of $L$ to the front of $R$ if $L$ is too big, and vice versa.
+
+A Python code is given below.
+\begin{minted}{python}
+from collections import deque
+
+class Teque:
+    def __init__(self):
+        self.L = deque()
+        self.R = deque()
+
+    def _rebalance(self):
+        if len(self.L) > len(self.R):
+            self.R.appendleft(self.L.pop())
+        elif len(self.R) > len(self.L) + 1:
+            self.L.append(self.R.popleft())
+
+    def append(self, x):
+        self.R.append(x)
+        self._rebalance()
+
+    def appendleft(self, x):
+        self.L.appendleft(x)
+        self._rebalance()
+
+    def insertmiddle(self, x):
+        self.R.appendleft(x)
+        self._rebalance()
+
+    def printteque(self):
+        for x in self.L:
+            print(x, end=' ')
+        for x in self.R:
+            print(x, end=' ')
+        print()
+\end{minted}
+\subsection{Stability of Binary (Max) Heap With Duplicates}
+\subsubsection{Show Your Understanding!}
+No. You can get $7_3,7_1,7_2$ for example. (VA OQ 1)
+\subsubsection{Make Heap Sort a Stable Sort!}
+Add an index for each duplicate element. For instance, $7_1,7_2,7_3$ could be inserted as pairs $(7,-1),(7,-2),(7,-3)$, etc., as it is a max heap. Then the order could be maintained.
+\section{Applications}
+\subsection{Graph Traversal}
+\subsubsection{Check Your Understanding}
+\begin{enumerate}
+\item Tree
+\item No. (...\textit{start from any source vertex}...)
+\end{enumerate}
+\subsubsection{Subtask 1: $k\ge2$}
+Then we can go back and forth on edges and therefore traverse the entire tree. So the answer is simply the sum of all weights, $O(N)$.
+\subsubsection{Subtask 2: $k=1$ and you must start from vertex $1$}
+Then we can only go through each edge once and therefore should pick a simple path. So we can run DFS/BFS from vertex $1$ and take the maximum over all paths to each leaf node. Also $O(N)$.
+\subsubsection{Sample Test Cases}
+$25;14;21$
+\subsubsection{Solve The Full Problem}
+The $k\ge2$ case is solved in subtask $1$. So we just need to consider the $k=1$ case.
+
+Again as we have shown in subtask $2$, we just need to find the simple path with the maximum weight sum in the tree. This is known as the (weighted) \textit{diameter}, defined as $$\mathrm{diamater}=\max_{u,v}\mathrm{dist}(u,v),$$ where $u$ and $v$ are vertices in $G$ and $\mathrm{dist}(u,v)$ is the sum of all weights in the simple path between $u$ and $v$ (which is unique as the graph is a tree). Thus we can:
+\begin{itemize}
+\item Pick any vertex, say $v$.
+\item Run DFS/BFS from $v$ to find the farthest vertex $a$.
+\item Run DFS/BFS from $a$ to find the farthest vertex $b$. Return the sum of weights of all edges on this path.
+\end{itemize}
+Note that the second step always finds an endpoint of the diameter, so the third step guarantees the answer. Also note that this still runs in $O(N)$ time.
+\newpage
+\section*{Appendix: Python Code for Application Question}
+\begin{minted}{python}
+def solve(n, e, k):
+    if k >= 2:
+        return sum(w for _, _, w in e)
+    g = [[] for _ in range(n + 1)]
+    for u, v, w in e:
+        g[u].append((v, w))
+        g[v].append((u, w))
+
+    def f(start):
+        s = [(start, 0, 0)]
+        bn = start
+        bd = 0
+        while s:
+            u, p, d = s.pop()
+            if d > bd:
+                bd = d
+                bn = u
+            for v, w in g[u]:
+                if v != p:
+                    s.append((v, u, d + w))
+        return bn, bd
+    return f(f(1)[0])[1]
+
+
+n = 6
+e = [(1, 2, 3), (2, 3, 1), (1, 4, 7), (1, 5, 9), (5, 6, 5)]
+print(solve(n, e, 7))
+print(solve(n, e, 1))
+\end{minted}
+\end{document}
