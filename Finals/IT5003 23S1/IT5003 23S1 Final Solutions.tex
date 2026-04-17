@@ -1,0 +1,215 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{e}...\textbf{ce}.
+\begin{enumerate}
+\item The correct answer is e) $\checkmark$. a) is correct but runs in $O\left(n^2\right)$, so for $n\le 10^5$ it is likely TLE. b) has an off-by-one error: the second loop should be \t{range(n-1, -1, -1)} to check for index 0. c) is also incorrect as it only checks adjacent pair. d) uses the \t{index} method which raises \t{ValueError} if the item is missing, so if there is only one 7 it will raise an exception.
+
+The simplest and fastest way is to use \t{print(A.count(7) >= 2)} which runs in $O(n)$.
+
+$\cdots$
+\setcounter{enumi}{18}
+\item The correct answer is c). $\checkmark$
+\item The correct answer is e). $\checkmark$ (The optimal algorithm is simply using a mathematical expression.)
+\end{enumerate}
+All other questions are redacted.
+\section{Simpler Questions}
+\subsection{Another Nearly Sorted Variant}
+\subsubsection{Sort These Countries}
+\begin{enumerate}
+\item India, Indonesia, Serbia, Singapore, Slovakia, Slovenia, South Africa, Sri Lanka, Sweden
+\item Indonesia, India, Sri Lanka, Singapore, Serbia, Sweden, Slovakia, Slovenia, South Africa
+\end{enumerate}
+\subsubsection{What Are Your Advices?}
+\begin{enumerate}
+\item We can use an approach similar to bucket sort. Note that most countries have matching first letter between name and ISO code. Thus we can create 26 buckets, one for each letter, and when someone arrives, put their receipt into the correct bucket. Later we only need to sort within each bucket.
+\item We can use a priority queue and maintain a sorted structure as we go.
+\end{enumerate}
+\subsection{Doubly Linked List with Duplicates}
+\begin{enumerate}
+\item search the whole DLL to check whether \t{v} already exists
+\item return all indices containing \t{v}
+\item nothing needs
+\item a rule to decide which copy of \t{v} to delete
+\item allow for
+\end{enumerate}
+\section{Applications}
+\subsection{Marketing Promotion}
+\subsubsection{Two More Days}
+\begin{enumerate}
+\item Day 4: $k_4=0$, no receipts are thrown into the ballot box.
+
+As the box previously contains $\{1, 5, 5\}$, box = $\{1, 5, 5\}$ now.
+
+At the end of day 4, the one who pays 5 dollars get $5-1=4$ dollars prize.
+
+Then both 5 (either one) and 1 dollars receipts were removed, box = $\{5\}$ now.
+\item Day 5: $k_5=1$, a receipt with value $\{2\}$ is thrown into the ballot box.
+
+As the box previously contains $\{5\}$, box = $\{2, 5\}$ now.
+
+At the end of day 5, the one who pays 5 dollars get $5-2=3$ dollar prize.
+
+Then both 5 and 2 dollars receipts were removed, box = $\varnothing$ now.
+
+In total, the supermarket pays $2+1+9+4+3=19$ dollars prizes for this promotion (the output).
+\end{enumerate}
+\subsubsection{One Manual Test Case}
+\begin{enumerate}
+\item Day 1: $k_1=7$, receipts with values $\{100, 7, 8, 70, 25, 50, 70\}$ are thrown into an initially empty ballot box.
+
+We have box = $\{7, 8, 25, 50, 70, 70, 100\}$ now.
+
+At the end of day 1, the one who pays 100 dollars get $100-7=93$ dollars prize.
+
+Then both 100 and 7 dollars receipts were removed, box = $\{8, 25, 50, 70, 70\}$ now.
+\item Day 2: $k_2=3$, receipts with values $\{120, 5, 99\}$ are thrown into the ballot box.
+
+As the box previously contains $\{8, 25, 50, 70, 70\}$, box = $\{5, 8, 25, 50, 70, 70, 99, 120\}$ now.
+
+At the end of day 2, the one who pays 120 dollars get $120-5=115$ dollar prize.
+
+Then both 120 and 5 dollars receipts were removed, box = $\{8, 25, 50, 70, 70, 99\}$ now.
+\item Day 3: $k_3=0$, no receipts are thrown into the ballot box.
+
+As the box previously contains $\{8, 25, 50, 70, 70, 99\}$, box = $\{8, 25, 50, 70, 70, 99\}$ now.
+
+At the end of day 3, the one who pays 99 dollars get $99-8=91$ dollars prize.
+
+Then both 99 and 8 dollars receipts were removed, box = $\{25, 50, 70, 70\}$ now.
+
+In total, the supermarket pays $93+115+91=299$ dollars prizes for this promotion (the output).
+\end{enumerate}
+\subsubsection{A Loophole}
+Maintain a max heap to extract the largest element at the end of each day, say $M_i$ at the end of day $i$. As the smallest element is always just $1$, we can just add $M_i-1$ to the answer and return the sum of the answers.
+\subsubsection{Solve The Full Problem}
+Maintain a min heap and a max heap, plus a hash map (frequency table) \t{f} to track the counts and handle duplicates with lazy deletion. The idea is as follows: for each day,
+\begin{itemize}
+\item Insert all receipts into both heaps and update \t{f},
+\item Get the largest $M$ from max heap (skip invalid using \t{f}),
+\item Get the smallest $m$ from min heap (skip invalid using \t{f}),
+\item Add $M-m$ to the answer,
+\item Decrease their counts in \t{f}.
+\end{itemize}
+
+Finally, return the answer. This is $O(n\log n)$ as each day takes only $O(\log n)$.
+
+(Alternatively, use a \href{https://en.wikipedia.org/wiki/Min-max_heap}{min-max heap}, but this is out of syllabus.)
+\subsection{Lake Currents}
+\subsubsection{Manual Test Cases}
+\begin{enumerate}
+\item One optimal route:
+$(4,5) \to (3,4)$ via NW, cost 0;
+$(3,4) \to (2,4)$ via N, cost 1;
+$(2,4) \to (1,4)$ via N, cost 1.
+Total cost $=2$.
+\item One optimal route:
+$(1,5) \to (2,4)$ via SW, cost 0;
+$(2,4) \to (3,3)$ via SW, cost 0;
+$(3,3) \to (2,2)$ via NW, cost 0.
+Total cost $=0$.
+\end{enumerate}
+\subsubsection{Special Case}
+Just return \t{max(abs(r1 - r2), abs(c1 - c2))}, the Manhattan distance between the source and the destination, as the cost is always 1. Time complexity is obviously $O(1)$.
+\subsubsection{Solve The Problem}
+Treat the lake as a weighted directed graph on $r\times c$ vertices, each vertex having 8 outgoing edges. From each vertex, the edge matching the current costs 0; all other edges cost 1. Then this is a SSSP problem with edge weights either 0 or 1. Thus we can use 0-1 BFS with a deque: if the next move costs 0, push it to the front and if the next move costs 1, push it to the back. The time complexity is $O(rc)$ which beats Dijkstra's.
+\newpage
+\section*{Appendix: Python Code for Application Questions}
+\begin{minted}{python}
+from typing import List
+
+
+class Solution:
+    def marketingPromotion(self, receipts: List[List[int]]) -> int:
+        from heapq import heappush, heappop
+        mh, Mh, f, ans = [], [], {}, 0
+        for d in receipts:
+            for x in d:
+                heappush(mh, x)
+                heappush(Mh, -x)
+                f[x] = f.get(x, 0) + 1
+            while f.get(-Mh[0], 0) == 0:
+                heappop(Mh)
+            M = -heappop(Mh)
+            f[M] -= 1
+            while f.get(mh[0], 0) == 0:
+                heappop(mh)
+            m = heappop(mh)
+            f[m] -= 1
+            ans += M - m
+        return ans
+
+    def lakeCurrents(self, grid: List[List[int]],
+                     r1: int, c1: int, r2: int, c2: int) -> int:
+        from collections import deque
+        r, c = len(grid), len(grid[0])
+        q = deque([(r1, c1)])
+        dist = [[100000] * c for _ in range(r)]
+        dist[r1][c1] = 0
+        dirs = [(-1, 0), (-1, 1), (0, 1), (1, 1),
+                (1, 0), (1, -1), (0, -1), (-1, -1)]
+        while q:
+            x, y = q.popleft()
+            for d, (dx, dy) in enumerate(dirs):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < r and 0 <= ny < c:
+                    cost = grid[x][y] != d
+                    if dist[x][y] + cost < dist[nx][ny]:
+                        dist[nx][ny] = dist[x][y] + cost
+                        if cost:
+                            q.appendleft((nx, ny))
+                        else:
+                            q.append((nx, ny))
+        return dist[r2][c2]
+
+
+tests = [[[[1, 2, 3], [1, 1], [10, 5, 5, 1]]],
+         [[[1, 2, 3], [1, 1], [10, 5, 5, 1], [], [2]]],
+         [[[100, 7, 8, 70, 25, 50, 70], [120, 5, 99], []]],
+         [[[5, 5, 5], [5, 5]]],
+         [[[1, 1], [2, 2], [3, 3], [4, 4]]]]
+for t in tests:
+    print(f"{t} -> {Solution().marketingPromotion(*t)}")
+"""[[[1, 2, 3], [1, 1], [10, 5, 5, 1]]] -> 12
+[[[1, 2, 3], [1, 1], [10, 5, 5, 1], [], [2]]] -> 19
+[[[100, 7, 8, 70, 25, 50, 70], [120, 5, 99], []]] -> 299
+[[[5, 5, 5], [5, 5]]] -> 0
+[[[1, 1], [2, 2], [3, 3], [4, 4]]] -> 0"""
+
+tests = [[[[0, 4, 1, 2, 5],
+           [0, 3, 3, 5, 5],
+           [6, 4, 7, 3, 4],
+           [7, 2, 3, 7, 7],
+           [0, 2, 0, 6, 2]], 4, 2, 2, 3],
+         [[[0, 4, 1, 2, 5],
+           [0, 3, 3, 5, 5],
+           [6, 4, 7, 3, 4],
+           [7, 2, 3, 7, 7],
+           [0, 2, 0, 6, 2]], 3, 4, 0, 3],
+         [[[0, 4, 1, 2, 5],
+           [0, 3, 3, 5, 5],
+           [6, 4, 7, 3, 4],
+           [7, 2, 3, 7, 7],
+           [0, 2, 0, 6, 2]], 0, 4, 1, 1],
+         [[[0, 4, 1, 2, 5],
+           [0, 3, 3, 5, 5],
+           [6, 4, 7, 3, 4],
+           [7, 2, 3, 7, 7],
+           [0, 2, 0, 6, 2]], 0, 0, 4, 4]]
+for t in tests:
+    print(f"{t} -> {Solution().lakeCurrents(*t)}")
+"""[[[0, 4, 1, 2, 5], [0, 3, 3, 5, 5], [6, 4, 7, 3, 4],
+[7, 2, 3, 7, 7], [0, 2, 0, 6, 2]], 4, 2, 2, 3] -> 1
+[[[0, 4, 1, 2, 5], [0, 3, 3, 5, 5], [6, 4, 7, 3, 4],
+[7, 2, 3, 7, 7], [0, 2, 0, 6, 2]], 3, 4, 0, 3] -> 2
+[[[0, 4, 1, 2, 5], [0, 3, 3, 5, 5], [6, 4, 7, 3, 4],
+[7, 2, 3, 7, 7], [0, 2, 0, 6, 2]], 0, 4, 1, 1] -> 0
+[[[0, 4, 1, 2, 5], [0, 3, 3, 5, 5], [6, 4, 7, 3, 4],
+[7, 2, 3, 7, 7], [0, 2, 0, 6, 2]], 0, 0, 4, 4] -> 3"""
+\end{minted}
+\end{document}
