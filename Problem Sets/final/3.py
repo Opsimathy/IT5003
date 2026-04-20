@@ -34,7 +34,6 @@ def clear_vertex(v: int, time: int, value: int) -> None:
             exact1[old] &= ~bit
         else:
             exact0[old] &= ~bit
-
     clear_time[v] = time
     clear_value[v] = value
     if value:
