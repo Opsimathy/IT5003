@@ -1,0 +1,240 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{bcedea}.
+\begin{enumerate}
+\item The correct answer is b). $\checkmark$ Each query takes $O(\log n)$ time and there are $m$ queries in total, so overall it's $O((n+m)\log n)$.
+\item The correct answer is c). $\checkmark$ a) is wrong as it's $O(n)$. b) is wrong as SLL uses less memory. d) is wrong as you can only travel in one direction. e) is wrong as it's $O(n)$.
+\item The correct answer is e). $\checkmark$ a) is wrong as the minimum is not at a fixed position. b) is wrong as the parent of index $i$ is at $\lfloor i/2\rfloor$ not 2i. c) is wrong as insertion places the new element at the end, then uses shift-up. d) is wrong as each vertex is less than or equal to its parent, not greater.
+\item The correct answer is d). $\checkmark$ a) is wrong as worst-case search in separate chaining is $O(n)$. b) is wrong as deletion is actually easier in separate chaining (just remove from the linked list). c) is wrong as a perfect hash function is not always possible in general cases. e) is wrong as SC typically needs resizing less often than OA, since it handles higher load factors better.
+\item The correct answer is e). $\checkmark$ a) is wrong as inorder traversal gives increasing order. b) is wrong as inserting keys in ascending order gives height $n$. c) is wrong as you need pre/postorder. d) is wrong as the values being odd has no relation to the number of internal vertices.
+\item The correct answer is a). $\checkmark$ Each successful relaxation can insert a new outdated copy into the PQ. Without skipping outdated copies, each popped copy may scan all outgoing edges of that vertex again, so it can become $O\left(m^2+m\log m\right)$.
+\end{enumerate}
+\section{Application Questions}
+\subsection{Earliest Time to (at least) Pass CS2040S}
+Just find $\min_i \mathrm{understood}[i]+\mathrm{solve}[i]$ as you just need $1$ more mark. This is $O(n)$.
+\subsection{Fourth Power}
+The largest fourth power comes from the largest absolute value, which is always at either end. Thus we can use two pointers from both ends, compare their absolute values and and fill output from left to right in non-increasing order. This is $O(n)$.
+\subsection{Robot Movement}
+Use a set to store visited cells. This is $O(n)$.
+\subsection{Special Binary Tree}
+Note that a subtree is perfect if an only if
+\begin{itemize}
+    \item its left subtree is perfect;
+    \item its right subtree is perfect; and
+    \item the heights of both subtrees are equal.
+\end{itemize}
+Thus we can run postorder traversal and for each node, return a pair (height, size) where $\mathrm{size}=-1$ means it is not perfect. Return $(0,0)$ for leaves. If both children are perfect and have equal height, then update the maximum size. Finally output the maximum size. This is $O(n)$.
+\subsection{Superstar}
+For each vertex, we can choose up to $k$ neighbors with the largest positive values excluding all negative values. This can be done via a min-heap. Overall this takes $O(m\log k+nk)$.
+\subsection{Completing Errands}
+We use BFS between consecutive special cells. As special cells can be passed through temporarily, their values do not affect movement. The idea is as follows:
+\begin{itemize}
+    \item Collect all the special cells and sort by value in ascending order.
+    \item Starting from $(0,0)$, for each cell:
+    \begin{itemize}
+        \item Run BFS from the current cell to the next special cell.
+        \item If unreachable, return $\infty$. Otherwise, add the distance to the answer.
+        \item Move the current position to that special cell.
+    \end{itemize}
+    \item Finally, return the total distance.
+\end{itemize}
+
+Each BFS takes $O(mn)$ in the worst case, and there are $k\in O\left(\sqrt{mn}\right)$ special cells, so overall this takes $O\left(m^{1.5}n^{1.5}\right)$ as required. (Sorting takes $O(k\log k)$ and can be omitted.)
+\newpage
+\section*{Appendix: Python Code for Application Questions}
+\begin{minted}{python}
+from typing import List, Optional, Tuple
+
+
+# Definition for a BSTvertex.
+class BSTVertex:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class Solution:
+    def earliestTime(self, n: int, understood: List[int], solve: List[int]) -> int:
+        return min(understood[i] + solve[i] for i in range(n))
+
+    def fourthPower(self, A: List[int]) -> List[int]:
+        ans = []
+        l, r = 0, len(A) - 1
+        while l <= r:
+            if abs(A[l]) > abs(A[r]):
+                ans.append(A[l] ** 4)
+                l += 1
+            else:
+                ans.append(A[r] ** 4)
+                r -= 1
+        return ans
+
+    def robotMovement(self, C: str) -> bool:
+        x = y = 7
+        seen = {(x, y)}
+        for c in C:
+            if c == 'U':
+                y += 1
+            elif c == 'R':
+                x += 1
+            elif c == 'D':
+                y -= 1
+            elif c == 'L':
+                x -= 1
+            if (x, y) in seen:
+                return True
+            seen.add((x, y))
+        return False
+
+    def specialBinaryTree(self, root: Optional[BSTVertex]) -> int:
+        ans = 0
+
+        def dfs(node: Optional[BSTVertex]):
+            nonlocal ans
+            if not node:
+                return 0, 0
+            lh, ls = dfs(node.left)
+            rh, rs = dfs(node.right)
+            if lh == rh and ls != -1 and rs != -1:
+                size = ls + rs + 1
+                ans = max(ans, size)
+                return lh + 1, size
+            return -1, -1
+        dfs(root)
+        return ans
+
+    def superstar(self, n: int, edges: List[Tuple[int, int]],
+                  value: List[int], k: int) -> int:
+        from heapq import nlargest
+        g = [[] for _ in range(n)]
+        for u, v in edges:
+            if value[v] > 0:
+                g[u].append(value[v])
+            if value[u] > 0:
+                g[v].append(value[u])
+        return max(value[i] + sum(nlargest(k, g[i]))
+                   for i in range(n))
+
+    def completingErrands(self, grid: List[List[int]]) -> float:
+        from collections import deque
+        from math import inf
+        m, n = len(grid), len(grid[0])
+        if not grid[0][0]:
+            return inf
+        special = sorted((grid[r][c], r, c) for r in range(m)
+                         for c in range(n) if grid[r][c] > 1)
+
+        def bfs(sr, sc, tr, tc):
+            q = deque([(sr, sc, 0)])
+            seen = {(sr, sc)}
+            while q:
+                r, c, d = q.popleft()
+                if (r, c) == (tr, tc):
+                    return d
+                for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < m and 0 <= nc < n and grid[nr][nc]\
+                       and (nr, nc) not in seen:
+                        seen.add((nr, nc))
+                        q.append((nr, nc, d + 1))
+            return inf
+        ans, r, c = 0, 0, 0
+        for _, tr, tc in special:
+            d = bfs(r, c, tr, tc)
+            if d == inf:
+                return d
+            ans += d
+            r, c = tr, tc
+        return ans
+
+
+tests = [[2, [4, 5], [5, 2]], [3, [8, 8, 8], [60, 20, 30]],
+         [4, [15, 20, 18, 16], [20, 20, 20, 20]]]
+for t in tests:
+    print(f"{t} -> {Solution().earliestTime(*t)}")
+"""[2, [4, 5], [5, 2]] -> 7
+[3, [8, 8, 8], [60, 20, 30]] -> 28
+[4, [15, 20, 18, 16], [20, 20, 20, 20]] -> 35"""
+
+tests = [[-7, -7, 2, 9], [1, 2, 2, 4, 5], [-3, -2, -1]]
+for t in tests:
+    print(f"{t} -> {Solution().fourthPower(t)}")
+"""[-7, -7, 2, 9] -> [6561, 2401, 2401, 16]
+[1, 2, 2, 4, 5] -> [625, 256, 16, 16, 1]
+[-3, -2, -1] -> [81, 16, 1]"""
+
+tests = ["URDL", "URDLL", "UURR", "DUDUDUDU"]
+for t in tests:
+    print(f"{t} -> {Solution().robotMovement(t)}")
+"""URDL -> True
+URDLL -> True
+UURR -> False
+DUDUDUDU -> True"""
+
+
+root = BSTVertex(13)
+root.left = BSTVertex(12)
+root.left.left = BSTVertex(2)
+root.right = BSTVertex(47)
+root.right.left = BSTVertex(21)
+root.right.left.left = BSTVertex(18)
+root.right.left.right = BSTVertex(32)
+root.right.left.right.left = BSTVertex(30)
+root.right.left.right.left.left = BSTVertex(26)
+root.right.left.right.left.right = BSTVertex(31)
+root.right.right = BSTVertex(57)
+root.right.right.left = BSTVertex(54)
+root.right.right.left.left = BSTVertex(52)
+root.right.right.left.right = BSTVertex(55)
+root.right.right.right = BSTVertex(66)
+root.right.right.right.left = BSTVertex(62)
+root.right.right.right.right = BSTVertex(79)
+print(Solution().specialBinaryTree(root))
+"""7"""
+
+edges = [(0, 1), (1, 2), (1, 3), (2, 4), (3, 4), (3, 5), (3, 6)]
+tests = [[7, edges, [1, 2, 3, 4, 70, -77, 2], 2],
+         [7, edges, [1, 2, 3, 4, 70, -77, 2], 6],
+         [7, edges, [1, 2, 3, 4, 70, -77, 2], 1],
+         [7, edges, [1, 2, 3, 4, 70, -77, 2], 0]]
+for t in tests:
+    print(f"{t} -> {Solution().superstar(*t)}")
+"""[7, ..., [1, 2, 3, 4, 70, -77, 2], 2] -> 77
+[7, ..., [1, 2, 3, 4, 70, -77, 2], 6] -> 78
+[7, ..., [1, 2, 3, 4, 70, -77, 2], 1] -> 74
+[7, ..., [1, 2, 3, 4, 70, -77, 2], 0] -> 70"""
+
+tests = [[[[1, 0, 0, 0, 0, 0],
+           [2, 0, 5, 1, 6, 0],
+           [3, 1, 4, 1, 7, 0],
+           [1, 1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 1, 0],
+           [0, 0, 0, 0, 0, 0]]],
+         [[[1, 1, 1],
+           [7, 0, 77],
+           [1, 0, 1],
+           [1, 1, 1]]],
+         [[[1, 1, 1],
+           [7, 0, 77],
+           [99, 0, 1],
+           [1, 1, 1]]],
+         [[[1, 0, 1],
+           [7, 0, 77],
+           [1, 0, 1],
+           [1, 0, 1]]]]
+for t in tests:
+    print(f"{t} -> {Solution().completingErrands(*t)}")
+"""[[[1, 0, 0, 0, 0, 0], [2, 0, 5, 1, 6, 0], [3, 1, 4, 1, 7, 0],
+     [1, 1, 1, 1, 1, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0]]] -> 8
+[[[1, 1, 1], [7, 0, 77], [1, 0, 1], [1, 1, 1]]] -> 5
+[[[1, 1, 1], [7, 0, 77], [99, 0, 1], [1, 1, 1]]] -> 10
+[[[1, 0, 1], [7, 0, 77], [1, 0, 1], [1, 0, 1]]] -> inf"""
+\end{minted}
+\end{document}
