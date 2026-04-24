@@ -1,0 +1,81 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\begin{document}
+\section{MCQs}
+The answers are \textbf{bedaa dedce edddd aedcc}.
+\begin{enumerate}
+\item The correct answer is b). $\checkmark$ Sorting dominates.
+\item The correct answer is e). $\checkmark$ There are $4$ odd numbers.
+\item The correct answer is d). $\checkmark$ We still need to scan the whole list.
+\item The correct answer is a). $\checkmark$ It needs to support push/pop/peak so stack is correct.
+\item The correct answer is a). $\checkmark$ Bucket Queue works efficiently only when priorities are integers in a small range.
+\item The correct answer is d). $\checkmark$ With $m=17$, $46$, $97$ and $63$ all hash to index $12$.
+\item The correct answer is e). $\checkmark$ \textit{[Non-examinable for IT5003]}
+\item The correct answer is d). $\checkmark$ \textit{[Non-examinable for IT5003]}
+\item The correct answer is c). $\checkmark$ \textit{[Non-examinable for IT5003]}
+\item The correct answer is e). $\checkmark$ Best for fast weight query/update ($O(1)$) in a sparse graph.
+\item The correct answer is e). $\checkmark$ It only fails if there is a reachable negative-weight cycle.
+\item The correct answer is d). $\checkmark$ Dijkstra fails with negative weight.
+\item The correct answer is d). $\checkmark$ Just count it!
+\item The correct answer is d). $\checkmark$ It only has $3$ edges ($5\to3\to4\to2$).
+\item The correct answer is d). $\checkmark$ After visiting $5\to4\to2\to3$ it must visit unvisited neighbor $1$ before returning to visit $0$.
+\item The correct answer is a). $\checkmark$ It is a tree so we use DFS/BFS.
+\item The correct answer is e). $\checkmark$ \textit{[Non-examinable for IT5003]}
+\item The correct answer is d). $\checkmark$ \textit{[Non-examinable for IT5003]}
+\item The correct answer is c). $\checkmark$ ii, iii and v are true.
+\item The correct answer is c). $\checkmark$ ii, iv and v are false.
+\end{enumerate}
+\section{Questions with Short Answers}
+\subsection{Space-Time Trade-off}
+\textit{[This is \href{https://leetcode.com/problems/two-sum/}{LeetCode 1}.]}
+\subsubsection{}
+Use brute force: check all pairs.
+\subsubsection{}
+Use hash set.
+\subsubsection{}
+Use sort + two pointers.
+\subsection{Bucket Queue}
+\textit{[Non-examinable for IT5003 as it's in Java.]}
+\section{Applications}
+\subsection{Generate Minimum-Sized AVL Tree}
+\textit{[Non-examinable for IT5003: uses AVL tree]}
+\subsection{Median Filter}
+\subsubsection{Check Your Understanding}
+$\{58, 44, 44, 62, 66, 66\}.$
+\subsubsection{Subtask 1}
+\subsubsection{Subtask 2}
+Actually both subtasks can be solved naïvely: sort within each window to find the median. There are $N - K + 1$ windows and each window takes $O(K\log K)$ to sort, so in total the time complexity is $O(NK\log K)$, enough when either $K$ or $N$ is small.
+\subsubsection{Solve The Full Problem}
+\textit{[This is \href{https://leetcode.com/problems/sliding-window-median/description/}{LeetCode 480}.]}
+
+We use two heaps with lazy deletion to achieve $O(N\log K)$.
+
+Given a window, we split it into a max-heap storing the lower half and a min-heap storing the larger half. Whenever we add or remove an element, we rebalance to ensure that the length of min-heap is equal to the length of max-heap (or one larger). Keep a dictionary to utilise lazy deletion. Details omitted (can be found online).
+
+Alternatively, use \t{sortedcontainers}:
+\begin{minted}{python}
+class Solution:
+    def medianSlidingWindow(self, nums: List[int], k: int) -> List[float]:
+        s, a = SortedList(), []
+        for i, x in enumerate(nums):
+            s.add(x)
+            if i >= k:
+                s.remove(nums[i - k])
+            if i >= k - 1:
+                a.append((s[(k - 1) // 2] + s[k // 2]) / 2)
+        return a
+\end{minted}
+\subsection{ASCII Art}
+\subsubsection{Check Your Understanding}
+$12; 14$
+\subsubsection{Subtask 1}
+The grid is just one row. After drawing one new \#, the connected component is simply the consecutive block of \# cells containing that position.
+\subsubsection{Subtask 2}
+After drawing one new \#, run a graph search from that cell and count all connected \# cells. We can use DFS or BFS.
+\subsubsection{Solve the Full Problem}
+\textit{[Non-examinable for IT5003: uses UFDS]}
+\end{document}

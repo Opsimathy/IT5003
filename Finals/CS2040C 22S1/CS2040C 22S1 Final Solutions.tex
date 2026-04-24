@@ -1,0 +1,25 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{cmbright}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\begin{document}
+\section{MCQs}
+[REDACTED]
+\section{Simpler Questions}
+[Non-examinable in IT5003 as it’s in C++.]
+\section{Applications}
+\subsection{Lexicographically Smallest Topological Sort}
+[Non-examinable in IT5003: uses DAG and Kahn's algorithm]
+\subsection{String Similarities}
+[Non-examinable in IT5003: uses MST]
+\subsection{Rock Climbing}
+\subsubsection{One Manual Test Case}
+$7: 0\to70\to11\to81\to151\to221\to291\to290$
+\subsubsection{What Is This Problem?}
+SSSP on an unweighted graph.
+\subsubsection{Solve This Problem}
+From height $h$, there are two types of moves: jump to $h+U$ or drop to any $h'$ with $0\le h'<h$. Naïvely trying every drop gives $O(H^2)$.
+
+Unfortunately, the $O(H\log H)$ solution is [Non-examinable in IT5003: uses UFDS].
+\end{document}
