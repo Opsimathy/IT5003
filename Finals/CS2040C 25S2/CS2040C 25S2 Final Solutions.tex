@@ -1,0 +1,542 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, minted, enumitem, cmbright, hyperref}
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\t}{\texttt}
+\DeclareMathOperator{\dist}{dist}
+\begin{document}
+\section{Application Questions}
+\textit{[Note: The original questions were written in C++, so I provided a Python translation in the associated \t{.py} file and in Appendix 1. The solutions are based on these Python versions.]}
+\subsection{Archery Practice}
+\textit{[Note: The original question used C++ \t{std::set} which is different from Python \t{set}. In particular, it maintains sorted order. The Python equivalent would be \t{SortedList}. But actually the optimal solution does not need to use this.]}
+
+\begin{enumerate}
+\item It uses the correct data structure that we learn in class, i.e., set \fbox{NO, I will elaborate}
+\item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{NO, I will elaborate}
+\item Ignoring correctness, it runs in: $\boxed{O(nk)}$
+\item It can crash on at least one valid corner case input: \fbox{NO}
+\item I can improve upon the Generated AI code: \fbox{YES, I will elaborate}
+\end{enumerate}
+
+The original code is not correct because a set removes duplicate distances, but different arrows may have the same distance from the origin. For example, shots $(1,0)$ and $(0,1)$ are different coordinates but both have distance $1$.
+
+The running time is $O(nk)$, since each insertion costs $O(\log n)$* and finding the $k^{\text{th}}$ element costs $O(k)$. A better solution is to use a max-heap, keeping the $k$ smallest distances seen so far. Then the top of the heap is the $k^{\text{th}}$ nearest distance. This gives $O(n\log k)$ time complexity.
+
+* since we are using \t{SortedList}.
+
+\begin{minted}{python}
+def archery(self, shots: List[Tuple[int, int]], k: int) -> int:
+    from heapq import heappush, heappop
+    h = []
+    ans = 0
+    for x, y in shots:
+        d = abs(x) + abs(y)
+        heappush(h, -d)
+        if len(h) > k:
+            heappop(h)
+        if len(h) == k:
+            ans += -h[0]
+    return ans
+\end{minted}
+\newpage
+\subsection{Integer Sibling Groups}
+\textit{[Note: The original question used UFDS which is non-examinable in IT5003. But actually the optimal solution does not need to use this.]}
+
+\begin{enumerate}
+\item It uses the correct data structure that we learn in class, i.e., UFDS \fbox{YES}
+\item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
+\item Ignoring correctness, it runs in: $\boxed{O\left(n^2\right)}$
+\item It can crash on at least one valid corner case input: \fbox{NO}
+\item I can improve upon the Generated AI code: \fbox{YES, I will elaborate}
+\end{enumerate}
+
+UFDS can group numbers that have the same digit sum and every pair of numbers with the same digit sum gets unioned, so each digit-sum group becomes one connected component and the final number of disjoint sets equals the number of sibling groups. As the integers are less than $10^7$, \t{get\_digit\_sum} runs in constant time. There are two nested loops over all pairs of numbers so the time complexity is $O\left(n^2\right)$.
+
+However, UFDS is not necessary. A better solution is to compute the digit sum of each number and insert it into a set. The answer is just the number of distinct digit sums, which runs in $O(n)$ with a set.
+
+\begin{minted}{python}
+def countSiblingGroups(self, S: Set[int]) -> int:
+    digit_sums = set()
+    for x in S:
+        digit_sums.add(self.get_digit_sum(x))
+    return len(digit_sums)
+
+def get_digit_sum(self, n: int) -> int:
+    total = 0
+    while n > 0:
+        total += n % 10
+        n //= 10
+    return total
+\end{minted}
+\newpage
+\subsection{VisuAlgo AVL Tree Visualization}
+\textit{[Note: The original question used AVL tree which is non-examinable in IT5003. But the code and solution are included for completeness.]}
+
+\begin{itemize}
+\item My analysis for SolutionTwin is:
+\begin{enumerate}
+\item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
+\item Ignoring correctness, it runs in: $\boxed{O\left(n\right)}$
+\item It can crash on at least one valid corner case input: \fbox{NO}
+\end{enumerate}
+\item My analysis for SolutionTalk is:
+\begin{enumerate}
+\item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
+\item Ignoring correctness, it runs in: $\boxed{O\left(n\right)}$
+\item It can crash on at least one valid corner case input: \fbox{YES, I will elaborate}
+\end{enumerate}
+\item Thus, I will use: \fbox{SolutionTwin}
+\end{itemize}
+
+Both SolutionTwin and SolutionTalk correctly balance a BST by first performing an inorder traversal to obtain a sorted list of values, and then rebuilding a balanced BST using a divide-and-conquer approach. This guarantees correctness.
+
+Both solutions run in $O(n)$ time, since each node is visited once during traversal and once during reconstruction.
+
+However, for SolutionTalk, \t{self.a} is not cleared before reuse. This can lead to incorrect behavior if the same object is reused multiple times. SolutionTwin avoids this issue by using a local vector.
+\newpage
+\subsection{Strongest Trinity}
+\begin{enumerate}
+\item It uses the correct graph data structure (check space complexity): \fbox{NO}
+\item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
+\item Ignoring correctness, it runs in: $\boxed{O\left(n^4\right)}$
+\item It can crash on at least one valid corner case input: \fbox{NO}
+\item I can improve upon the Generated AI code: \fbox{YES, I will elaborate}
+\end{enumerate}
+
+The original code correctly identifies all trinities and computes their strength by counting connections to other nodes. Therefore, it produces correct results for all valid inputs.
+
+However, it uses AM with $O\left(n^2\right)$ space, which is inefficient. We should use an AL with $O(n+m)$ space. (In general, we should avoid AM unless the graph is sparse and/or we need to frequently check existence of edges.)
+
+The time complexity is $O\left(n^4\right)$ since there are four nested loops.
+
+This solution can be significantly improved. Note that the strength of a trinity $(u,v,w)$ is simply $\deg(u)+\deg(v)+\deg(w)-6$, i.e., the number of edges outside the trinity minus the number of edges inside the trinity. Instead of checking all trinities, we check every edge $(u, v)$ with their common neighbors, which takes time $O(\min(\deg(u),\deg(v))$. Summing over all pairs of $(u, v)$ gives $O(nm)=O\left(n^3\right)$ time in the worst case*.
+
+* where the graph is dense, i.e., $\deg(v)\in O(n), m\in O\left(n^2\right)$.
+\begin{minted}{python}
+def maxTrinityStrength(self, n: int, EL: List[Tuple[int, int]]) -> int:
+    adj = [set() for _ in range(n + 1)]
+    for u, v in EL:
+        adj[u].add(v)
+        adj[v].add(u)
+    deg = [len(adj[i]) for i in range(n + 1)]
+    return max(deg[u] + deg[v] + deg[w] for u, v in EL
+               for w in adj[u] & adj[v]) - 6
+\end{minted}
+\newpage
+\subsection{Yoshi's Tasks}
+\textit{[Note: The original question used Kahn's algorithm which is non-examinable in IT5003. But the code and solution are included for completeness.]}
+
+We can use Kahn's algorithm with a min-heap. The idea is as follows:
+\begin{itemize}
+\item Build a directed graph with edge $i\to j$ for each precedence pair $\{i, j\}$.
+\item Compute the number of unfinished prerequisites for each task, i.e., the indegree.
+\item Insert every task with indegree $0$ into a min-heap.
+\item Repeatedly:
+\begin{itemize}
+\item remove the smallest task $u$ from the heap,
+\item append $u$ to the answer,
+\item for every edge $u\to v$, decrement the indegree of $v$,
+\item if the indegree of $v$ is $0$, insert $v$ into the heap.
+\end{itemize}
+\item If the answer contains fewer than $n$ tasks, there is a cycle, so return $-1$. Otherwise return the answer.
+\end{itemize}
+
+Each task is inserted and removed from the heap once, costing $O(n\log n)$. Each edge is processed once, and heap insertions cost at most $O(m\log n)$ total. Thus in total this is $O((n+m)\log n)$.
+
+\begin{minted}{python}
+def yoshiTasks(self, n: int, edges: List[Tuple[int, int]]) -> List[int]:
+    from heapq import heapify, heappush, heappop
+    g = [[] for _ in range(n + 1)]
+    d = [0] * (n + 1)
+    for u, v in edges:
+        g[u].append(v)
+        d[v] += 1
+    h = [i for i in range(1, n + 1) if d[i] == 0]
+    heapify(h)
+    ans = []
+    while h:
+        u = heappop(h)
+        ans.append(u)
+        for v in g[u]:
+            d[v] -= 1
+            if d[v] == 0:
+                heappush(h, v)
+    return ans if len(ans) == n else [-1]
+\end{minted}
+\newpage
+\subsection{The Last Question}
+\textit{[Note: This question is similar to CS2040C 23S1 Final B.3.2 (ASSSP).]}
+
+We can run Dijkstra twice, from $0$ and from $n-1$. An edge $(u, v, w)$ is on some shortest path if and only if going through it can still achieve the total shortest distance. The idea is as follows:
+\begin{itemize}
+\item Run Dijkstra from $0$ to get an array $\dist_0$ where each $\dist_0[u]$ denotes the shortest distance between $0$ and $u$.
+\item Run Dijkstra from $n-1$ to get an array $\dist_{n-1}$ where each $\dist_{n-1}[v]$ denotes the shortest distance between $n-1$ and $v$.
+\item For any edge $(u,v,w)$, it is part of at least one shortest path if and only if
+
+$\dist_0[u]+w+\dist_{n-1}[v]=\dist_0[n-1]$ or $\dist_0[v]+w+\dist_{n-1}[u]=\dist_0[n-1]$.
+
+Thus we can just enumerate all edges and check the condition.
+\end{itemize}
+
+The time complexity is dominated by Dijkstra which is $O((n+m)\log n)$.
+
+\begin{minted}{python}
+def theLastQuestion(self, n: int, edges: List[Tuple[int, int, int]]) -> int:
+    from heapq import heappush, heappop
+    from math import inf
+
+    def dijkstra(s):
+        g = [[] for _ in range(n)]
+        for u, v, w in edges:
+            g[u].append((v, w))
+            g[v].append((u, w))
+        dist = [inf] * n
+        dist[s] = 0
+        q = [(0, s)]
+        while q:
+            d, u = heappop(q)
+            if d != dist[u]:
+                continue
+            for v, w in g[u]:
+                if d + w < dist[v]:
+                    dist[v] = d + w
+                    heappush(q, (dist[v], v))
+        return dist
+    d1 = dijkstra(0)
+    d2 = dijkstra(n - 1)
+    d = d1[n - 1]
+    return sum(d1[u] + w + d2[v] == d or d1[v] + w + d2[u] == d
+               for u, v, w in edges)
+\end{minted}
+\newpage
+\section*{Appendix 1: Python Code [Original]}
+\begin{minted}{python}
+from typing import List, Tuple, Optional, Set
+
+
+class TreeNode:
+    def __init__(self, value=0, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.num_sets = n
+
+    def find(self, x: int) -> int:
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union_set(self, a: int, b: int) -> None:
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb:
+            return
+        if self.rank[ra] < self.rank[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra
+        if self.rank[ra] == self.rank[rb]:
+            self.rank[ra] += 1
+        self.num_sets -= 1
+
+    def num_disjoint_sets(self) -> int:
+        return self.num_sets
+
+
+class Solution:
+    # A.1 Archery Practice
+    def archery(self, shots: List[Tuple[int, int]], k: int) -> int:
+        from sortedcontainers import SortedList
+        S = SortedList()
+        ans = 0
+        for x, y in shots:
+            d = abs(x) + abs(y)
+            S.add(d)
+            if len(S) >= k:
+                ans += sorted(S)[k - 1]
+        return ans
+
+    # A.2 Integer Sibling Groups
+    def countSiblingGroups(self, S: Set[int]) -> int:
+        nums = list(S)
+        n = len(nums)
+        if n == 0:
+            return 0
+        uf = UnionFind(n)
+        digit_sums = [self.get_digit_sum(x) for x in nums]
+        for i in range(n):
+            for j in range(i + 1, n):
+                if digit_sums[i] == digit_sums[j]:
+                    uf.union_set(i, j)
+        return uf.num_disjoint_sets()
+
+    def get_digit_sum(self, n: int) -> int:
+        total = 0
+        while n > 0:
+            total += n % 10
+            n //= 10
+        return total
+
+    # A.3 VisuAlgo AVL Tree Visualization
+    # SolutionTwin version
+    def balanceBST_twin(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        nodes: List[int] = []
+        self.inorder_twin(root, nodes)
+        return self.build_twin(nodes, 0, len(nodes) - 1)
+
+    def inorder_twin(self, root: Optional[TreeNode], nodes: List[int]) -> None:
+        if not root:
+            return
+        self.inorder_twin(root.left, nodes)
+        nodes.append(root.value)
+        self.inorder_twin(root.right, nodes)
+
+    def build_twin(self, nodes: List[int], l: int, r: int) -> Optional[TreeNode]:
+        if l > r:
+            return None
+        m = (l + r) // 2
+        node = TreeNode(nodes[m])
+        node.left = self.build_twin(nodes, l, m - 1)
+        node.right = self.build_twin(nodes, m + 1, r)
+        return node
+
+    # SolutionTalk version
+    def __init__(self):
+        self.a = []
+
+    def balanceBST_talk(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        # self.a = []
+        self.inorder_talk(root)
+        return self.build_talk(0, len(self.a) - 1)
+
+    def inorder_talk(self, root: Optional[TreeNode]) -> None:
+        if not root:
+            return
+        self.inorder_talk(root.left)
+        self.a.append(root.value)
+        self.inorder_talk(root.right)
+
+    def build_talk(self, l: int, r: int) -> Optional[TreeNode]:
+        if l > r:
+            return None
+        m = (l + r) >> 1
+        node = TreeNode(self.a[m])
+        node.left = self.build_talk(l, m - 1)
+        node.right = self.build_talk(m + 1, r)
+        return node
+
+    # A.4 Strongest Trinity
+    def maxTrinityStrength(self, n: int, EL: List[Tuple[int, int]]) -> int:
+        AM = [[0] * (n + 1) for _ in range(n + 1)]
+        for u, v in EL:
+            AM[u][v] = AM[v][u] = 1
+        ans = -1
+        for i in range(1, n + 1):
+            for j in range(i + 1, n + 1):
+                for k in range(j + 1, n + 1):
+                    if AM[i][j] and AM[j][k] and AM[i][k]:
+                        strength = 0
+                        for x in range(1, n + 1):
+                            if x in (i, j, k):
+                                continue
+                            if AM[i][x]:
+                                strength += 1
+                            if AM[j][x]:
+                                strength += 1
+                            if AM[k][x]:
+                                strength += 1
+                        ans = max(ans, strength)
+        return ans
+
+
+tests = [[[(1, 1), (3, 4), (2, 1), (-1, 0)], 2], [[(1, 0), (0, 1), (2, 0)], 2]]
+for t in tests:
+    print(f"{t} -> {Solution().archery(*t)}")
+"""[[(1, 1), (3, 4), (2, 1), (-1, 0)], 2] -> 12
+[[(1, 0), (0, 1), (2, 0)], 2] -> 2"""
+
+tests = [{5, 6, 7, 23, 24, 33, 51, 123}, {12, 21, 30, 5}, {10, 20, 11, 101, 99}]
+for t in tests:
+    print(f"{t} -> {Solution().countSiblingGroups(t)}")
+"""{33, 5, 6, 7, 51, 23, 24, 123} -> 3
+{5, 12, 21, 30} -> 2
+{99, 20, 101, 10, 11} -> 3"""
+
+
+def inorder(root):
+    if not root:
+        return []
+    return inorder(root.left) + [root.value] + inorder(root.right)
+
+
+def height(root):
+    if not root:
+        return -1
+    return 1 + max(height(root.left), height(root.right))
+
+
+root = TreeNode(37)
+root.left = TreeNode(28)
+root.left.left = TreeNode(24)
+root.right = TreeNode(44)
+root.right.right = TreeNode(83)
+root.right.right.left = TreeNode(56)
+root.right.right.left.left = TreeNode(46)
+root.right.right.left.right = TreeNode(63)
+root.right.right.right = TreeNode(93)
+root.right.right.right.left = TreeNode(91)
+b1 = Solution().balanceBST_twin(root)
+b2 = Solution().balanceBST_talk(root)
+print(f"{inorder(root), height(root)} -> {inorder(b1), height(b1)}")
+print(f"{inorder(root), height(root)} -> {inorder(b2), height(b2)}")
+
+tests = [[7, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6), (6, 7)]],
+         [7, [(1, 2), (1, 3), (1, 4), (2, 5), (3, 6), (6, 7)]],
+         [6, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6)]],
+         [5, [(1, 2), (2, 3), (1, 3), (1, 4), (2, 4), (3, 4)]]]
+for t in tests:
+    print(f"{t} -> {Solution().maxTrinityStrength(*t)}")
+"""[7, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6), (6, 7)]] -> 3
+[7, [(1, 2), (1, 3), (1, 4), (2, 5), (3, 6), (6, 7)]] -> -1
+[6, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6)]] -> 3
+[5, [(1, 2), (2, 3), (1, 3), (1, 4), (2, 4), (3, 4)]] -> 3"""
+\end{minted}
+\newpage
+\section*{Appendix 2: Python Code [Optimal]}
+\begin{minted}{python}
+from typing import List, Tuple, Set
+
+
+class Solution:
+    # A.1 Archery Practice
+    def archery(self, shots: List[Tuple[int, int]], k: int) -> int:
+        from heapq import heappush, heappop
+        h = []
+        ans = 0
+        for x, y in shots:
+            d = abs(x) + abs(y)
+            heappush(h, -d)
+            if len(h) > k:
+                heappop(h)
+            if len(h) == k:
+                ans += -h[0]
+        return ans
+
+    # A.2 Integer Sibling Groups
+    def countSiblingGroups(self, S: Set[int]) -> int:
+        digit_sums = set()
+        for x in S:
+            digit_sums.add(self.get_digit_sum(x))
+        return len(digit_sums)
+
+    def get_digit_sum(self, n: int) -> int:
+        total = 0
+        while n > 0:
+            total += n % 10
+            n //= 10
+        return total
+
+    # A.4 Strongest Trinity
+    def maxTrinityStrength(self, n: int, EL: List[Tuple[int, int]]) -> int:
+        adj = [set() for _ in range(n + 1)]
+        for u, v in EL:
+            adj[u].add(v)
+            adj[v].add(u)
+        deg = [len(adj[i]) for i in range(n + 1)]
+        return max((deg[u] + deg[v] + deg[w] - 6 for u, v in EL
+                    for w in adj[u] & adj[v]), default=-1)
+
+    # A.5 Yoshi's Tasks
+    def yoshiTasks(self, n: int, edges: List[Tuple[int, int]]) -> List[int]:
+        from heapq import heapify, heappush, heappop
+        g = [[] for _ in range(n + 1)]
+        d = [0] * (n + 1)
+        for u, v in edges:
+            g[u].append(v)
+            d[v] += 1
+        h = [i for i in range(1, n + 1) if d[i] == 0]
+        heapify(h)
+        ans = []
+        while h:
+            u = heappop(h)
+            ans.append(u)
+            for v in g[u]:
+                d[v] -= 1
+                if d[v] == 0:
+                    heappush(h, v)
+        return ans if len(ans) == n else [-1]
+
+    # A.6 The Last Question
+    def theLastQuestion(self, n: int,
+                        edges: List[Tuple[int, int, int]]) -> int:
+        from heapq import heappush, heappop
+        from math import inf
+
+        def dijkstra(s):
+            g = [[] for _ in range(n)]
+            for u, v, w in edges:
+                g[u].append((v, w))
+                g[v].append((u, w))
+            dist = [inf] * n
+            dist[s] = 0
+            q = [(0, s)]
+            while q:
+                d, u = heappop(q)
+                if d != dist[u]:
+                    continue
+                for v, w in g[u]:
+                    if d + w < dist[v]:
+                        dist[v] = d + w
+                        heappush(q, (dist[v], v))
+            return dist
+        d1 = dijkstra(0)
+        d2 = dijkstra(n - 1)
+        d = d1[n - 1]
+        return sum(d1[u] + w + d2[v] == d or d1[v] + w + d2[u] == d
+                   for u, v, w in edges)
+
+
+tests = [[[(1, 1), (3, 4), (2, 1), (-1, 0)], 2], [[(1, 0), (0, 1), (2, 0)], 2]]
+for t in tests:
+    print(f"{t} -> {Solution().archery(*t)}")
+"""[[(1, 1), (3, 4), (2, 1), (-1, 0)], 2] -> 12
+[[(1, 0), (0, 1), (2, 0)], 2] -> 2"""
+
+tests = [{5, 6, 7, 23, 24, 33, 51, 123}, {12, 21, 30, 5}, {10, 20, 11, 101, 99}]
+for t in tests:
+    print(f"{t} -> {Solution().countSiblingGroups(t)}")
+"""{33, 5, 6, 7, 51, 23, 24, 123} -> 3
+{5, 12, 21, 30} -> 2
+{99, 20, 101, 10, 11} -> 3"""
+
+tests = [[7, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6), (6, 7)]],
+         [7, [(1, 2), (1, 3), (1, 4), (2, 5), (3, 6), (6, 7)]],
+         [6, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6)]],
+         [5, [(1, 2), (2, 3), (1, 3), (1, 4), (2, 4), (3, 4)]]]
+for t in tests:
+    print(f"{t} -> {Solution().maxTrinityStrength(*t)}")
+"""[7, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6), (6, 7)]] -> 3
+[7, [(1, 2), (1, 3), (1, 4), (2, 5), (3, 6), (6, 7)]] -> -1
+[6, [(1, 2), (1, 3), (2, 3), (1, 4), (2, 5), (3, 6)]] -> 3
+[5, [(1, 2), (2, 3), (1, 3), (1, 4), (2, 4), (3, 4)]] -> 3"""
+
+tests = [[5, [(1, 4), (4, 2), (1, 2), (1, 5)]],
+         [5, [(1, 4), (4, 2), (2, 1), (1, 5)]]]
+for t in tests:
+    print(f"{t} -> {Solution().yoshiTasks(*t)}")
+"""[5, [(1, 4), (4, 2), (1, 2), (1, 5)]] -> [1, 3, 4, 2, 5]
+[5, [(1, 4), (4, 2), (2, 1), (1, 5)]] -> [-1]"""
+
+tests = [[6, [(0, 1, 1), (0, 2, 1), (0, 3, 4), (1, 4, 3),
+              (2, 3, 2), (3, 4, 1), (4, 5, 3)]]]
+for t in tests:
+    print(f"{t} -> {Solution().theLastQuestion(*t)}")
+"""[6, [(0, 1, 1), (0, 2, 1), (0, 3, 4), (1, 4, 3),
+        (2, 3, 2), (3, 4, 1), (4, 5, 3)]] -> 6"""
+\end{minted}
+\end{document}
