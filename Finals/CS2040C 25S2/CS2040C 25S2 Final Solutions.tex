@@ -84,20 +84,18 @@ def get_digit_sum(self, n: int) -> int:
 \begin{enumerate}
 \item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
 \item Ignoring correctness, it runs in: $\boxed{O\left(n\right)}$
-\item It can crash on at least one valid corner case input: \fbox{YES, I will elaborate}
+\item It can crash on at least one valid corner case input: \fbox{NO}
 \end{enumerate}
-\item Thus, I will use: \fbox{SolutionTwin}
+\item Thus, I will use: \fbox{Either solution}
 \end{itemize}
 
 Both SolutionTwin and SolutionTalk correctly balance a BST by first performing an inorder traversal to obtain a sorted list of values, and then rebuilding a balanced BST using a divide-and-conquer approach. This guarantees correctness.
 
 Both solutions run in $O(n)$ time, since each node is visited once during traversal and once during reconstruction.
-
-However, for SolutionTalk, \t{self.a} is not cleared before reuse. This can lead to incorrect behavior if the same object is reused multiple times. SolutionTwin avoids this issue by using a local vector.
 \newpage
 \subsection{Strongest Trinity}
 \begin{enumerate}
-\item It uses the correct graph data structure (check space complexity): \fbox{NO}
+\item It uses the correct graph data structure (check space complexity): \fbox{NO, I will elaborate}
 \item Ignoring time complexity, it gives correct output for all valid inputs: \fbox{YES}
 \item Ignoring correctness, it runs in: $\boxed{O\left(n^4\right)}$
 \item It can crash on at least one valid corner case input: \fbox{NO}
@@ -125,8 +123,6 @@ def maxTrinityStrength(self, n: int, EL: List[Tuple[int, int]]) -> int:
 \end{minted}
 \newpage
 \subsection{Yoshi's Tasks}
-\textit{[Note: The original question used Kahn's algorithm which is non-examinable in IT5003. But the code and solution are included for completeness.]}
-
 We can use Kahn's algorithm with a min-heap. The idea is as follows:
 \begin{itemize}
 \item Build a directed graph with edge $i\to j$ for each precedence pair $\{i, j\}$.
